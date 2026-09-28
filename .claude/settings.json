@@ -1,0 +1,58 @@
+{
+  "permissions": {
+    "defaultMode": "default",
+    "allow": [
+      "mcp__hub-cto-hub__hub_claim_messages",
+      "mcp__hub-cto-hub__hub_respond",
+      "mcp__hub-cto-hub__hub_send",
+      "mcp__hub-cto-hub__hub_sent",
+      "mcp__hub-cto-hub__hub_roster",
+      "mcp__hub-cto-hub__hub_get_attachment",
+      "Bash(awk:*)",
+      "Bash(cat:*)",
+      "Bash(cut:*)",
+      "Bash(diff:*)",
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(ls:*)",
+      "Bash(printf:*)",
+      "Bash(sort:*)",
+      "Bash(tail:*)",
+      "Bash(tr:*)",
+      "Bash(uniq:*)",
+      "Bash(wc:*)"
+    ],
+    "deny": [
+      "Read(C:\\Source\\Rulebook\\**)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/secrets/**)",
+      "Read(**/.mcp.json)",
+      "Bash(cat secrets:*)",
+      "Bash(cat .env:*)"
+    ]
+  },
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "async": true,
+            "timeout": 10,
+            "statusMessage": "Logging permission request",
+            "command": "mkdir -p \"$HOME/.claude/permission-logs\" && { printf '{\"ts\":\"%s\",\"agent\":\"%s\",\"payload\":' \"$(date -Iseconds)\" \"$(basename \"$CLAUDE_PROJECT_DIR\")\"; tr -d '\\n'; printf '}\\n'; } >> \"$HOME/.claude/permission-logs/$(basename \"$CLAUDE_PROJECT_DIR\").jsonl\""
+          }
+        ]
+      }
+    ]
+  }
+}

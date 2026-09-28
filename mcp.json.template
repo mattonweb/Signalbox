@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hub-cto-hub": {
+      "type": "http",
+      "url": "https://apps.pebblesilversites.com/mcp/CTO-HUB",
+      "headers": {
+        "Authorization": "Bearer <placed by Matt, never committed>",
+        "User-Agent": "SignalboxCodingAgent/1.0"
+      }
+    }
+  }
+}

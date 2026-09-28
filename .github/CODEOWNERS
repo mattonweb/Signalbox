@@ -1,0 +1,5 @@
+# Global ownership: every path needs Matt's review to merge.
+* @Matt402NE
+
+# Folder ownership by seat is recorded in each skill's frontmatter (owner:) and in CLAUDE.md;
+# GitHub handles for agent seats are added here when they exist.
