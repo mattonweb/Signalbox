@@ -55,6 +55,15 @@ Added to C:\Source\MyApp\.gitignore: .claude/skills/code-roadbed-csharp/
 It will not overwrite a real folder. If your repo already holds a copy of the skill, the script stops and
 tells you. Delete or rename the copy first, then run it again.
 
+⛔ **If the copy is tracked by git, the order is: remove the copy, commit, merge, pull, and only then
+create the junction.** Git deletes and restores tracked files *through* a junction. If a junction exists
+while any branch you check out still tracks the copy, the next pull, merge or branch switch that removes
+those files removes them from the skill's home. Seen 2026-09-29: a pull that merged a copy's deletion
+emptied all seventeen files from the home repo's folder, which was restored only because the home tracks
+them. The script refuses to create a junction while the current branch still tracks files at that path,
+and that refusal is the guard, not an obstacle. On a machine where the repo is public and the removal
+travels by pull request, wait for the merge and pull it before running the script.
+
 ### 3. Commit the gitignore line
 
 The junction itself is never committed. It is a pointer that only exists on this machine. The gitignore

@@ -76,6 +76,18 @@ if (Test-Path -LiteralPath $target) {
     throw "$target is a real folder (a copy). Remove or rename it by hand before creating the junction; this script never deletes content."
 }
 
+# Refuse while the agent home's git index still tracks files under the target path. Git deletes and
+# restores tracked files THROUGH a junction, so a junction created before the copy's removal is merged
+# lets the next pull, merge or branch switch empty the skill's home. Seen 2026-09-29: a pull that merged
+# the copy's deletion removed all 17 files from the home repo's folder.
+$gitDir = Join-Path $AgentHome '.git'
+if (Test-Path -LiteralPath $gitDir) {
+    $tracked = @(git -C $AgentHome ls-files -- ".claude/skills/$SkillName" 2>$null)
+    if ($tracked.Count -gt 0) {
+        throw "$AgentHome still tracks $($tracked.Count) file(s) under .claude/skills/$SkillName on the current branch. Commit the copy's removal, merge it, and pull it on this machine BEFORE creating the junction; otherwise git will delete the skill's home through the junction."
+    }
+}
+
 New-Item -ItemType Junction -Path $target -Target $sourcePath | Out-Null
 Write-Output "Created junction: $target -> $sourcePath"
 
