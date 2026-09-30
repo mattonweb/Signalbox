@@ -3,3 +3,8 @@
 
 # Folder ownership by seat is recorded in each skill's frontmatter (owner:) and in CLAUDE.md;
 # GitHub handles for agent seats are added here when they exist.
+
+# Setup tooling and its documents: Co-Founder seat (instruction-governed tooling).
+/tools/            @Matt402NE
+/COMPUTER-SETUP.md @Matt402NE
+/REPO-SETUP.md     @Matt402NE

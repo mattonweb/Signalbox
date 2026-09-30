@@ -1,0 +1,19 @@
+# Generic Betterleaks config: the scanner's default rules, nothing added.
+# install.sh copies this to ~/.githooks/betterleaks.toml ONLY if no config is there yet, so a
+# private overlay you placed earlier is never overwritten.
+#
+# To add rules for your own secret formats, or allowlists for your own accepted exposures, do not
+# edit this file. Write a private config that extends it:
+#
+#   title = "my overlay"
+#   [extend]
+#   path = "C:/path/to/Signalbox/tools/secret-scan/betterleaks.toml"
+#   [[rules]] ...
+#
+# and place THAT file at ~/.githooks/betterleaks.toml. See COMPUTER-SETUP.md.
+# Never put a real key in any config file or in a test for it. Shapes only.
+
+title = "Generic secret-scan config (default rules)"
+
+[extend]
+useDefault = true

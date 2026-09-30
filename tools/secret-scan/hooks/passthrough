@@ -1,0 +1,10 @@
+#!/bin/sh
+# Pass-through for hooks the machine-wide core.hooksPath would otherwise bypass
+# (e.g. Git LFS's pre-push / post-checkout / post-commit / post-merge).
+# install.sh copies this file under each hook name listed there.
+NAME="$(basename "$0")"
+GITDIR="$(git rev-parse --git-common-dir)"
+if [ -x "$GITDIR/hooks/$NAME" ]; then
+  exec "$GITDIR/hooks/$NAME" "$@"
+fi
+exit 0

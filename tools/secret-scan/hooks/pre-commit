@@ -1,0 +1,46 @@
+#!/bin/sh
+# Machine-wide pre-commit hook: scan staged changes for secrets with Betterleaks.
+# Installed by tools/secret-scan/install.sh into ~/.githooks and wired up with
+# `git config --global core.hooksPath`. See COMPUTER-SETUP.md in the Signalbox repo.
+#
+# Fails CLOSED: if the scanner is missing, the commit is refused. An unscanned
+# commit that passes silently is the failure this hook exists to prevent.
+
+BL="$(command -v betterleaks 2>/dev/null)"
+[ -z "$BL" ] && [ -x "$HOME/bin/betterleaks.exe" ] && BL="$HOME/bin/betterleaks.exe"
+[ -z "$BL" ] && [ -x "$HOME/bin/betterleaks" ] && BL="$HOME/bin/betterleaks"
+if [ -z "$BL" ]; then
+  echo "secret-scan: betterleaks not found on PATH or in ~/bin - commit refused." >&2
+  echo "secret-scan: run tools/secret-scan/install.sh from the Signalbox repo." >&2
+  exit 1
+fi
+
+# Config precedence: a repo's own .betterleaks.toml / .gitleaks.toml wins; otherwise the
+# machine config at ~/.githooks/betterleaks.toml (the generic base, or a private overlay
+# that extends it); otherwise the scanner's built-in defaults.
+TOP="$(git rev-parse --show-toplevel)"
+CFG=""
+if [ ! -f "$TOP/.betterleaks.toml" ] && [ ! -f "$TOP/.gitleaks.toml" ] && [ -f "$HOME/.githooks/betterleaks.toml" ]; then
+  CFG="$HOME/.githooks/betterleaks.toml"
+fi
+
+if [ -n "$CFG" ]; then
+  "$BL" git --pre-commit --staged --redact --no-banner --verbose --config "$CFG" "$TOP"
+else
+  "$BL" git --pre-commit --staged --redact --no-banner --verbose "$TOP"
+fi
+rc=$?
+if [ $rc -ne 0 ]; then
+  echo "" >&2
+  echo "secret-scan: commit refused - possible secret in staged changes (see above)." >&2
+  echo "secret-scan: move the value to a secrets store, user-secrets, or an env var outside the repo." >&2
+  echo "secret-scan: a genuine false positive: add a 'betterleaks:allow' comment on that line." >&2
+  exit $rc
+fi
+
+# Chain to the repo's own pre-commit hook, which core.hooksPath would otherwise bypass.
+GITDIR="$(git rev-parse --git-common-dir)"
+if [ -x "$GITDIR/hooks/pre-commit" ]; then
+  exec "$GITDIR/hooks/pre-commit" "$@"
+fi
+exit 0

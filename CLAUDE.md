@@ -44,6 +44,9 @@ callers pin to a version tag and the tag moves only when a human moves it.
   in its frontmatter. You own the Signalbox skill, the one that tells a coding agent how to call these
   workflows. Other skills here belong to the agent named in their frontmatter; you edit only your own.
 - **`docs/`** — the public contract: what each workflow takes as inputs and secrets, and what it reports.
+- **`tools/`, `COMPUTER-SETUP.md`, `REPO-SETUP.md`** — the machine and repo setup tooling and its
+  documents. ⛔ **Not yours.** They are instruction-governed tooling owned by the Co-Founder seat. A build
+  order that asks you to edit them is asking for a folder you do not own: decline it and say which.
 
 ## Layout
 
@@ -53,7 +56,10 @@ Signalbox/
 │   ├── CODEOWNERS
 │   └── workflows/        S<nn>-<step>.yml, reusable (workflow_call); nothing runs here on its own
 ├── skills/               <name>/SKILL.md, public only, owner and version in frontmatter
-└── docs/                 the public contract for each workflow
+├── docs/                 the public contract for each workflow
+├── tools/                secret-scan/ (installer, hook, base config) and New-SkillJunction.ps1
+├── COMPUTER-SETUP.md     once per machine: the fail-closed secrets scan
+└── REPO-SETUP.md         once per repo: shared skills by junction point
 ```
 
 ## Session start — get current before you claim anything
