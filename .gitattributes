@@ -84,8 +84,10 @@ Dockerfile  text eol=lf
 # These are universally consumed across platforms; LF is safest.
 
 *.txt       text eol=lf
-*.csv       text eol=lf
-*.tsv       text eol=lf
+# CSV and TSV are test fixtures and product samples: byte-exact, no line-ending conversion in either direction
+# (RFC 4180 is CRLF; LF-normalising a fixture changes what the test reads). -text keeps diffs, unlike binary. Ruled 2026-10-04.
+*.csv       -text
+*.tsv       -text
 *.sql       text eol=lf
 *.xml       text eol=lf
 *.xaml      text eol=lf
