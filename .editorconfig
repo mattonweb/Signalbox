@@ -142,10 +142,10 @@ csharp_style_conditional_delegate_call = true
 # Modifier preferences
 csharp_prefer_static_anonymous_function = true
 csharp_prefer_static_local_function = true
-# PENDING DECISION (2026-10-04): the code writes 'required public' (1,338 declarations, 0 the other way) and StyleCop 1.1.118 is silent
-# because it predates the keyword. Current StyleCop source classifies 'required' as an 'other' modifier, so SA1206 will error on
-# 'required public' at the next StyleCop upgrade. Microsoft's default order is ...,unsafe,required,volatile,async. Pick one.
-csharp_preferred_modifier_order = required,public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async
+# Ruled 2026-10-04: access modifier first, 'required' in its default place. StyleCop's current source classifies 'required'
+# as an 'other' modifier, so SA1206 enforces this order; StyleCop 1.1.118 predates the keyword and is silent. Existing code
+# writes 'required public' and is reformatted mechanically (dotnet format style --diagnostics IDE0036) per repo.
+csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async
 csharp_style_prefer_readonly_struct = true
 csharp_style_prefer_readonly_struct_member = true
 
