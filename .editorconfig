@@ -151,10 +151,12 @@ csharp_style_conditional_delegate_call = true
 # Modifier preferences
 csharp_prefer_static_anonymous_function = true
 csharp_prefer_static_local_function = true
-# Ruled 2026-10-04: access modifier first, 'required' in its default place. StyleCop's current source classifies 'required'
-# as an 'other' modifier, so SA1206 enforces this order; StyleCop 1.1.118 predates the keyword and is silent. Existing code
-# writes 'required public' and is reformatted mechanically (dotnet format style --diagnostics IDE0036) per repo.
-csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async
+# 'required' FIRST while StyleCop.Analyzers is pinned at 1.1.118 (the latest stable, 2019). That version predates the keyword,
+# classifies it below every known modifier, and SA1206 fails the build on 'public required' (verified 2026-10-04: one flipped
+# declaration, 2 SA1206 errors). The 1.2.0-beta line classifies 'required' as an ordinary modifier and demands the opposite
+# order, 'public required'. The two orders are tied to the StyleCop version: flip this line in the same change that upgrades
+# the package, never separately. Corrects a same-day ruling that had read the newer StyleCop source, not the pinned build.
+csharp_preferred_modifier_order = required,public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async
 csharp_style_prefer_readonly_struct = true
 csharp_style_prefer_readonly_struct_member = true
 
