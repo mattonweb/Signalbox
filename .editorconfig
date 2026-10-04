@@ -13,6 +13,8 @@ root = true
 
 [*]
 charset = utf-8
+# Line endings match .gitattributes: LF everywhere, CRLF only for the Visual Studio-authored types listed below.
+end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 indent_style = space
@@ -22,7 +24,8 @@ indent_size = 2
 trim_trailing_whitespace = false
 max_line_length = 110
 
-[*.{ps1,cmd,bat}]
+# Visual Studio-authored types check out CRLF per .gitattributes; this list mirrors its CRLF section.
+[*.{cs,vb,cshtml,razor,sln,slnx,csproj,vbproj,props,targets,resx,runsettings,cmd,bat,ps1,psm1,psd1,ps1xml}]
 end_of_line = crlf
 
 # C# files: house style + analyzer overrides.
