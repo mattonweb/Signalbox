@@ -1,7 +1,7 @@
 ---
 name: code-csharp-mstest
 description: Generate MSTest unit tests for C# classes following strict naming conventions, assertion patterns, and structural standards. Use this skill whenever asked to write, scaffold, or review C# unit tests.
-owner: CTO v2
+owner: Matt
 version: 1.0.0
 visibility: public
 ---

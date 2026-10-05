@@ -41,8 +41,9 @@ callers pin to a version tag and the tag moves only when a human moves it.
   Step numbers are frozen; a new step gets a fresh number at the end of its decade or a letter suffix, and
   numbers are never reused.
 - **`skills/`** — public skills, one folder per skill with a `SKILL.md` carrying an `owner` and a `version`
-  in its frontmatter. You own the Signalbox skill, the one that tells a coding agent how to call these
-  workflows. Other skills here belong to the agent named in their frontmatter; you edit only your own.
+  in its frontmatter. **Every skill is owned by Matt, and a skill changes only in an attended session with
+  him** (his ruling, 2026-10-04). That includes the Signalbox skill that tells a coding agent how to call these
+  workflows: when you find a skill wrong, say so and leave it.
 - **`docs/`** — the public contract: what each workflow takes as inputs and secrets, and what it reports.
 - **`tools/`, `COMPUTER-SETUP.md`, `REPO-SETUP.md`** — the machine and repo setup tooling and its
   documents. ⛔ **Not yours.** They are instruction-governed tooling owned by the Co-Founder seat. A build
