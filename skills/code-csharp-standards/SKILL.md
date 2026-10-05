@@ -195,6 +195,14 @@ the `private readonly` field the `this._field` pattern needs. The `.editorconfig
 `csharp_style_prefer_primary_constructors = false` for this reason. (When ruled, 30 existed across three repos, 25 on
 classes; by-product.)
 
+### 4.7 Data access goes through Roadbed, never through Dapper directly
+
+A repository reaches the database through Roadbed's data abstractions: the `Roadbed.Crud` base repositories and the
+`Roadbed.Data` executor and request types. A product repo never has `using Dapper;`. The library underneath is
+Roadbed's concern, so it can change without any product repo noticing (Matt, 2026-10-04). Should the data layer ever
+move to raw ADO.NET, row-to-entity mapping lives in mapper types under `Mappers/`, in the shape of Roadbed's CSV entity
+mapper, never in a repository method body. (When ruled, 86 files in two repos called Dapper directly; by-product.)
+
 ---
 
 ## 5. Data types
@@ -444,7 +452,8 @@ to a build error in one repo.
 21. **NEVER** put a primary constructor on a class; records only.
 22. **NEVER** reference Newtonsoft.Json in new code; `System.Text.Json`.
 23. **NEVER** give a domain concept a bare primitive type on an entity or in a signature; wrap it.
-24. **NEVER** edit this skill outside an attended session with Matt, who owns it.
+24. **NEVER** `using Dapper;` in a product repo; reach the database through Roadbed's data abstractions.
+25. **NEVER** edit this skill outside an attended session with Matt, who owns it.
 
 ---
 
@@ -478,6 +487,7 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] No primary constructor on a class
 - [ ] JSON through `System.Text.Json`; LINQ in method syntax
 - [ ] No bare primitive for a domain concept on an entity or in a signature; identifiers, codes and coordinates are wrapped
+- [ ] No `using Dapper;`; the database is reached through Roadbed's data abstractions
 - [ ] No `TODO`, `FIXME`, `XXX`, `HACK`; no commented-out code; no new suppression without a reason
 - [ ] Nothing marked `DECISION (Matt)` in this skill was treated as a rule
 
