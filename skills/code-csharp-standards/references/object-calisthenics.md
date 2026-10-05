@@ -79,14 +79,17 @@ public void ProcessOrder(Order order)
 **Original.** No bare primitive crosses a method boundary or sits in a field; wrap it in a type that carries its
 meaning and its validation (`Age` rather than `int`).
 
-**Disposition: split.** The rule has two halves and the house adopts one now:
+**Disposition: adopted in full** (Matt, 2026-10-04: *"our house rules should be to 'Wrap all primitives'"*). The rule has
+two halves, and the session took them in order:
 
 - **Configuration half, adopted.** A behaviour class holds no primitive fields. Configuration arrives as one options
   type. Measured: 34 primitive fields across the 983 behaviour classes, 21 of them on one orchestrator, and 91
   options and settings types already exist. This half is cheap and already house practice.
-- **Domain half, deferred to its own decision.** Typed identifiers and value objects on entities and method
-  signatures (`Fips`, `Id`, `PostalCode`) would touch Dapper binding and every repository signature. Not declined;
-  not decided here.
+- **Domain half, adopted.** Typed identifiers and value objects on entities and method signatures (`PlaceId`,
+  `CountyFips`, `PostalCode`, `Coordinate`): a `readonly record struct` over the primitive, validating in its
+  constructor, so the compiler refuses a county id where a place id belongs and a GeoJSON pair cannot be read
+  backwards. Database mapping happens once in the data layer's type handlers. This is the largest by-product on the
+  list (3,540 bare entity properties when ruled) and lands one module at a time, identifiers first.
 
 Matt's expectation, recorded: applying this rule together with rule 8 will create more small data types under
 `Entities/` and `DTOs/`. Measured, that is true for one class today, and it is the right outcome where it happens.

@@ -208,9 +208,13 @@ classes; by-product.)
 - **JSON serialisation: `System.Text.Json` is the house library**, with `[JsonPropertyName]` on DTO members (Matt,
   2026-10-04: *"We are purposely moving to System.Text.Json"*). The January standards' *"Always use Newtonsoft.Json"*
   is superseded. New code never references Newtonsoft; the 21 files that still do, all in one repo, are migration debt.
-- **Wrapping primitives on entities and signatures** (typed identifiers and value objects for `Fips`, `Id`, and the
-  like) is **deferred to its own decision** (Matt, 2026-10-04). It touches Dapper binding and every repository
-  signature and does not ride in on these rules.
+- **Wrap all primitives** (Matt, 2026-10-04: *"our house rules should be to 'Wrap all primitives'"*). A domain concept
+  is never a bare `long`, `string` or `double` on an entity or in a method signature: a place id is a `PlaceId`, a
+  county code a `CountyFips`, a position a `Coordinate`. The wrapper is a `readonly record struct` over the primitive,
+  validates in its constructor, and gives the compiler the power to refuse a county id passed where a place id was
+  expected. Mapping to and from the database happens once, in the data layer's type handlers, never at read sites.
+  (When ruled, 3,540 entity properties were bare primitives; this is the largest by-product on the list and lands one
+  module at a time, identifiers first.)
 
 ---
 
@@ -439,7 +443,8 @@ to a build error in one repo.
 20. **NEVER** write LINQ query syntax; method syntax only.
 21. **NEVER** put a primary constructor on a class; records only.
 22. **NEVER** reference Newtonsoft.Json in new code; `System.Text.Json`.
-23. **NEVER** edit this skill outside an attended session with Matt, who owns it.
+23. **NEVER** give a domain concept a bare primitive type on an entity or in a signature; wrap it.
+24. **NEVER** edit this skill outside an attended session with Matt, who owns it.
 
 ---
 
@@ -472,6 +477,7 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] Clock read through an injected `TimeProvider`; no `.Now`
 - [ ] No primary constructor on a class
 - [ ] JSON through `System.Text.Json`; LINQ in method syntax
+- [ ] No bare primitive for a domain concept on an entity or in a signature; identifiers, codes and coordinates are wrapped
 - [ ] No `TODO`, `FIXME`, `XXX`, `HACK`; no commented-out code; no new suppression without a reason
 - [ ] Nothing marked `DECISION (Matt)` in this skill was treated as a rule
 
@@ -482,7 +488,6 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 | Section | Decision | Recommended | Evidence (2026-10-04) |
 |---|---|---|---|
 | 2 | One type per file | Adopt | Starter kit says it; 80 multi-type files, mostly row classes beside repositories |
-| 5 | Typed identifiers and value objects | Deferred by ruling | Touches Dapper and every repository signature |
 
 Ruled 2026-10-04 and now in the body as rules: primary constructors on records only (4.6), `System.Text.Json` (5),
-injected `TimeProvider` (11), LINQ method syntax only (12).
+wrap all primitives (5), injected `TimeProvider` (11), LINQ method syntax only (12).
