@@ -1,6 +1,6 @@
 ---
 name: code-csharp-standards
-description: House C# standards for every Pebble & Silver Sites repository. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behaviour classes versus data types) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
+description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behaviour classes versus data types) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
 owner: Matt
 version: 0.1.0-draft
 visibility: public
@@ -8,7 +8,7 @@ visibility: public
 
 # C# Standards
 
-These are the house rules for C# in every Pebble & Silver Sites repository. Each is written so a reviewer can
+These are the house rules for C# in every repository that adopts this skill. Each is written so a reviewer can
 answer yes or no to it on a diff, because the pipeline's standards reviewer uses this document as its rulebook.
 Where a tool can enforce a rule, the tool enforces it and this document names the tool. Where no tool can, this
 document is the rule.
@@ -23,8 +23,8 @@ document is the rule.
   its "usings outside the namespace" line is corrected here because StyleCop SA1200 rejects it.
 - Repository Starter Kit `github/instructions/object-calisthenics.instructions.md`: the nine original rules. Each
   rule's house disposition is in [references/object-calisthenics.md](references/object-calisthenics.md).
-- City `docs/STACK.md`, "Build landmines": the analyzer rules that fail a build during ordinary coding. Carried as
-  section 13.
+- A private product repo's "build landmines" note: the analyzer rules that fail a build during ordinary coding.
+  Carried as section 13; the note itself is not public.
 
 **Items marked `DECISION (Matt)` are not rules yet.** Each carries the recommended answer and the evidence, and it
 stays marked until Matt rules in an attended session. Never treat a marked item as settled.
@@ -53,12 +53,12 @@ leaves it.
 
 Every `.cs` file, in this order:
 
-1. The file-scoped namespace as the first line: `namespace Pebble.Module.Place.Services;`
+1. The file-scoped namespace as the first line: `namespace Acme.Catalog.Services;`
 2. The `using` directives, after the namespace line, `System` first (StyleCop SA1200 and SA1208 enforce both).
 3. One type.
 
 ```csharp
-namespace Pebble.Module.Place.Services;
+namespace Acme.Catalog.Services;
 
 using System;
 using System.Threading;
@@ -67,9 +67,9 @@ using Microsoft.Extensions.Logging;
 using Roadbed.Common;
 
 /// <summary>
-/// Promotes postal codes that have gained a locality.
+/// Promotes catalog prices that have passed their review date.
 /// </summary>
-internal sealed class PostalCodePromoter : BaseClassWithLogging
+internal sealed class CatalogPricePromoter : BaseClassWithLogging
 {
     // ...
 }
@@ -107,8 +107,8 @@ and settings types, row classes. They live:
 - under `Entities/` when `public`;
 - under `DTOs/` when `internal` or `private`;
 - **never under `Services/`, `Repositories/` or `Orchestrators/`.** A request or result type filed beside the
-  service that uses it is misfiled. (On 2026-10-04 `OrderIntakeRequest.cs`, `ChannelUploadResult.cs`,
-  `ChannelDeleteResult.cs` and 30 options types sat in behaviour folders; moving them is by-product.)
+  service that uses it is misfiled. (On 2026-10-04 three request and result types and 30 options types sat in behaviour folders; moving them is
+  by-product.)
 
 **Behaviour classes** are orchestrators, services, repositories, jobs, loaders, composers, handlers: anything with a
 method body. Sections 4 and 6 apply to them and not to data.
@@ -174,7 +174,7 @@ Every constructor parameter is validated on entry with the throw helpers, and `n
 parameter name is quoted:
 
 ```csharp
-public PlaceExportProjector(IPlaceDatabaseFactory factory, ILogger<PlaceExportProjector> logger)
+public CatalogExportProjector(ICatalogDatabaseFactory factory, ILogger<CatalogExportProjector> logger)
 {
     ArgumentNullException.ThrowIfNull(factory);
     ArgumentNullException.ThrowIfNull(logger);
@@ -188,7 +188,7 @@ for disposal checks (CA1513).
 
 ### 4.6 Primary constructors
 
-`DECISION (Matt)`: 30 primary constructors exist (25 on classes, 5 on records; City, Pebble, Weather). A primary
+`DECISION (Matt)`: 30 primary constructors exist across three repos (25 on classes, 5 on records). A primary
 constructor on a behaviour class cannot validate its parameters on entry without a workaround and does not produce
 the `private readonly` field the `this._field` pattern needs. Recommended: **primary constructors on records only;
 behaviour classes use an explicit constructor with validation.** The `.editorconfig` line
@@ -205,8 +205,8 @@ behaviour classes use an explicit constructor with validation.** The `.editorcon
 - A data type carries **no behaviour**. If it needs a method with a body it has become a behaviour class and
   section 4 applies; usually the method belongs on a service.
 - **JSON serialisation.** `DECISION (Matt)`: the January standards said *"Always use Newtonsoft.Json"*. The code
-  moved: `System.Text.Json` is used in 219 files, Newtonsoft in 21, all in Weather. Recommended:
-  **System.Text.Json is the house library, with `[JsonPropertyName]` on DTO members**; Weather's 21 files are
+  moved: `System.Text.Json` is used in 219 files, Newtonsoft in 21, all in one repo. Recommended:
+  **System.Text.Json is the house library, with `[JsonPropertyName]` on DTO members**; that repo's 21 files are
   migration debt.
 - **Wrapping primitives on entities and signatures** (typed identifiers and value objects for `Fips`, `Id`, and the
   like) is **deferred to its own decision** (Matt, 2026-10-04). It touches Dapper binding and every repository
@@ -387,7 +387,7 @@ Not used:
 
 ## 13. Analyzer landmines
 
-Rules that fail the build during ordinary coding, with the fix (City `docs/STACK.md`, carried):
+Rules that fail the build during ordinary coding, with the fix (carried from a private landmines note):
 
 | Rule | What trips it | Fix |
 |---|---|---|
@@ -473,7 +473,7 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 |---|---|---|---|
 | 2 | One type per file | Adopt | Starter kit says it; 80 multi-type files, mostly row classes beside repositories |
 | 4.6 | Primary constructors | Records only | 30 uses; conflicts with validation and the readonly-field pattern |
-| 5 | JSON library | System.Text.Json | 219 files vs 21 Newtonsoft, all Weather |
+| 5 | JSON library | System.Text.Json | 219 files vs 21 Newtonsoft, all in one repo |
 | 11 | Time | Inject `TimeProvider`; never `.Now` | 38 files already; 7 `.Now`; 315 direct `UtcNow` |
 | 12 | LINQ query syntax | Method syntax only | 6 sites |
 | 5 | Typed identifiers and value objects | Deferred by ruling | Touches Dapper and every repository signature |

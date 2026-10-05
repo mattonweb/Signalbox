@@ -1,7 +1,7 @@
 # Object Calisthenics: the nine rules and the house disposition of each
 
 The nine rules are Jeff Bay's, from *The ThoughtWorks Anthology* (2008). They are reproduced here in their original
-form so nobody has to go looking for them, followed by what Pebble & Silver Sites does with each one. The
+form so nobody has to go looking for them, followed by the house disposition of each one. The
 dispositions were ruled by Matt on 2026-10-04, in an attended session, against measurements of the eight C# repos
 (3,378 files; 983 orchestrator, service and repository classes; 287 entity files). This document carries the
 reasoning; the rules themselves live in `SKILL.md`, which is what a reviewer applies.

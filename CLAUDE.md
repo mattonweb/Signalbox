@@ -1,7 +1,7 @@
 # CLAUDE.md — Signalbox
 
 Orientation for Claude Code sessions in this repo. Signalbox is the **public** home of the S-numbered
-pipeline workflows that every Pebble & Silver Sites product repo calls, and of the public skills, including
+pipeline workflows that every product repo calls, and of the public skills, including
 the one that teaches other coding agents how to call those workflows. Each product repo carries a thin
 caller pinned to a version tag of this repo. The step contract the workflows implement lives with the
 orchestrator that drives them; this file is the working agreement that governs how work reaches this repo
