@@ -30,7 +30,6 @@
       "Bash(wc:*)"
     ],
     "deny": [
-      "Read(C:\\Source\\Rulebook\\**)",
       "Read(**/.env)",
       "Read(**/.env.*)",
       "Read(**/secrets/**)",
