@@ -2,7 +2,7 @@
 name: code-csharp-standards
 description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behaviour classes versus data types) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
 owner: Matt
-version: 0.1.0-draft
+version: 1.0.0
 visibility: public
 ---
 
@@ -25,9 +25,6 @@ document is the rule.
   rule's house disposition is in [references/object-calisthenics.md](references/object-calisthenics.md).
 - A private product repo's "build landmines" note: the analyzer rules that fail a build during ordinary coding.
   Carried as section 13; the note itself is not public.
-
-**Items marked `DECISION (Matt)` are not rules yet.** Each carries the recommended answer and the evidence, and it
-stays marked until Matt rules in an attended session. Never treat a marked item as settled.
 
 **This skill is Matt's.** It changes only in an attended session with him. An agent that finds it wrong says so and
 leaves it.
@@ -89,9 +86,9 @@ internal sealed class CatalogPricePromoter : BaseClassWithLogging
 - **`#region` blocks are encouraged** for grouping members (SA1124 is disabled for this reason).
 - **No file header banner** (SA1633 disabled). XML documentation on every public and internal member
   (`GenerateDocumentationFile` makes a missing summary an error).
-- **One type per file.** `DECISION (Matt)`: the starter kit already says it; 80 files in behaviour folders declare
-  more than one type today, mostly Dapper row classes beside their repository. Recommended: adopt, and move each
-  row class to its own file under `DTOs/` (section 3). Cost: 80 files.
+- **One type per file** (Matt, 2026-10-04; the starter kit already said it). A row class beside its repository moves
+  to its own file under `DTOs/` (section 3). (When ruled, 80 files in behaviour folders declared more than one type;
+  by-product.)
 
 ---
 
@@ -489,15 +486,11 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] No bare primitive for a domain concept on an entity or in a signature; identifiers, codes and coordinates are wrapped
 - [ ] No `using Dapper;`; the database is reached through Roadbed's data abstractions
 - [ ] No `TODO`, `FIXME`, `XXX`, `HACK`; no commented-out code; no new suppression without a reason
-- [ ] Nothing marked `DECISION (Matt)` in this skill was treated as a rule
 
 ---
 
-## Open decisions, for Matt to rule in an attended session
+## Decisions record
 
-| Section | Decision | Recommended | Evidence (2026-10-04) |
-|---|---|---|---|
-| 2 | One type per file | Adopt | Starter kit says it; 80 multi-type files, mostly row classes beside repositories |
-
-Ruled 2026-10-04 and now in the body as rules: primary constructors on records only (4.6), `System.Text.Json` (5),
-wrap all primitives (5), injected `TimeProvider` (11), LINQ method syntax only (12).
+Every item in this skill was ruled by Matt in an attended session on 2026-10-04, including the six that were drafted as
+open questions: one type per file (2), primary constructors on records only (4.6), `System.Text.Json` (5), wrap all
+primitives (5), injected `TimeProvider` (11), LINQ method syntax only (12). Nothing in this skill is marked as pending.
