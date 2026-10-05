@@ -41,8 +41,9 @@ leaves it.
 - Analyzers in every project: `StyleCop.Analyzers` **1.1.118**, `SonarAnalyzer.CSharp`,
   `Microsoft.CodeAnalysis.NetAnalyzers`. StyleCop is the binding style tool because its warnings are errors. The
   `.editorconfig` IDE rules are hints only, since `EnforceCodeStyleInBuild` is not set.
-- The house `.editorconfig` and `.gitattributes` have one home: the root of the Signalbox repository. Each product
-  repo carries a verbatim copy at `src/.editorconfig`. A copy that differs is drift; the fix lands in Signalbox first.
+- The house `.editorconfig` and `.gitattributes` have one home copy each, owned by Matt alongside this skill. Each
+  product repo carries a verbatim copy at `src/.editorconfig`. A copy that differs is drift; the fix lands in the home
+  copy first and is re-copied, never edited in place downstream.
 - **StyleCop 1.1.118 predates the `required` keyword** and fails the build (SA1206) on `public required`. The house
   order is therefore `required public` for as long as that version is pinned. The `.editorconfig` line carries this
   in its comment and flips only in the change that upgrades the package. Never change one without the other.
@@ -332,8 +333,8 @@ A production `.cs` file is at most **500 lines**, counting documentation and bla
 designer files and migrations. A file over the ceiling is split by responsibility, usually along the private methods
 section 6.1 produced.
 
-**Named exceptions live in that repository's `CLAUDE.md`, never here.** Signalbox is public and shared; the list is
-repo-specific. Each entry names the file, its line count when listed, and why it stays. (On 2026-10-04, 92 files
+**Named exceptions live in that repository's `CLAUDE.md`, never in this skill.** This skill is public and shared
+across repos; the list is repo-specific. Each entry names the file, its line count when listed, and why it stays. (On 2026-10-04, 92 files
 exceeded 500 and 16 exceeded 1,000; the largest was 2,476.)
 
 ---
@@ -407,8 +408,8 @@ Rules that fail the build during ordinary coding, with the fix (carried from a p
 Rules deliberately disabled in the `.editorconfig`, with reasons: SA1010 and SA1011 (StyleCop 1.1.118 false
 positives on collection expressions and nullable arrays), SA1124 (regions encouraged), SA1309 (`_camelCase`
 fields), SA1633 (no header), SA1201 (member order, pending StyleCop support for .NET 10), IDE0063, IDE0090,
-IDE0130, S1066, S1075, S3267. Disabling another rule is a decision made in Signalbox, never a reflex to a build
-error.
+IDE0130, S1066, S1075, S3267. Disabling another rule is a decision made in the home `.editorconfig` by its owner, never a reflex
+to a build error in one repo.
 
 ---
 
@@ -431,7 +432,7 @@ error.
 15. **NEVER** abbreviate an identifier.
 16. **NEVER** exceed 500 lines in a production file without an entry in that repo's `CLAUDE.md`.
 17. **NEVER** write `TODO`, `FIXME`, `XXX` or `HACK` in a comment.
-18. **NEVER** disable an analyzer rule in a product repo's `.editorconfig`; the change is made in Signalbox or not at all.
+18. **NEVER** disable an analyzer rule in a product repo's `.editorconfig`; the change is made in the home copy or not at all.
 19. **NEVER** edit this skill outside an attended session with Matt, who owns it.
 
 ---

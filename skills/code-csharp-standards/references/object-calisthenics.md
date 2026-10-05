@@ -139,7 +139,7 @@ lines per class, 10 classes per namespace.
 not adopted.** Fifty lines is unreachable for a Dapper repository with documented SQL, and the house already carries
 `GenerateDocumentationFile`, which puts a summary on every member. Measured on 2026-10-04: median production file 91
 lines, 92 files over 500, 16 over 1,000, the largest 2,476. **Named exceptions live in each repository's own
-`CLAUDE.md`, never in Signalbox**, which is public and shared.
+`CLAUDE.md`, never in this skill**, which is public and shared across repos.
 
 ## 8. No classes with more than two instance variables
 
