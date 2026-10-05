@@ -189,11 +189,11 @@ for disposal checks (CA1513).
 
 ### 4.6 Primary constructors
 
-`DECISION (Matt)`: 30 primary constructors exist across three repos (25 on classes, 5 on records). A primary
-constructor on a behaviour class cannot validate its parameters on entry without a workaround and does not produce
-the `private readonly` field the `this._field` pattern needs. Recommended: **primary constructors on records only;
-behaviour classes use an explicit constructor with validation.** The `.editorconfig` line
-`csharp_style_prefer_primary_constructors = true` flips to `false` in the same change.
+**Primary constructors on records only** (Matt, 2026-10-04). A behaviour class uses an explicit constructor with
+validation: a primary constructor cannot validate its parameters on entry without a workaround and does not produce
+the `private readonly` field the `this._field` pattern needs. The `.editorconfig` says
+`csharp_style_prefer_primary_constructors = false` for this reason. (When ruled, 30 existed across three repos, 25 on
+classes; by-product.)
 
 ---
 
@@ -205,10 +205,9 @@ behaviour classes use an explicit constructor with validation.** The `.editorcon
   perform better. (Roadbed standards, carried.)
 - A data type carries **no behaviour**. If it needs a method with a body it has become a behaviour class and
   section 4 applies; usually the method belongs on a service.
-- **JSON serialisation.** `DECISION (Matt)`: the January standards said *"Always use Newtonsoft.Json"*. The code
-  moved: `System.Text.Json` is used in 219 files, Newtonsoft in 21, all in one repo. Recommended:
-  **System.Text.Json is the house library, with `[JsonPropertyName]` on DTO members**; that repo's 21 files are
-  migration debt.
+- **JSON serialisation: `System.Text.Json` is the house library**, with `[JsonPropertyName]` on DTO members (Matt,
+  2026-10-04: *"We are purposely moving to System.Text.Json"*). The January standards' *"Always use Newtonsoft.Json"*
+  is superseded. New code never references Newtonsoft; the 21 files that still do, all in one repo, are migration debt.
 - **Wrapping primitives on entities and signatures** (typed identifiers and value objects for `Fips`, `Id`, and the
   like) is **deferred to its own decision** (Matt, 2026-10-04). It touches Dapper binding and every repository
   signature and does not ride in on these rules.
@@ -359,10 +358,10 @@ A class that inherits `BaseClassWithLogging` (every `BaseSchedulingJob<T>` does)
 
 ## 11. Time
 
-`DECISION (Matt)`: behaviour classes read the clock through an injected `TimeProvider` (38 files already do);
-`DateTime.Now` and `DateTimeOffset.Now` are never used (7 sites today); `DateTime.UtcNow` and
-`DateTimeOffset.UtcNow` are allowed only in data types and static helpers that cannot take a dependency (315 direct
-reads today, mostly in behaviour classes; by-product). Recommended: adopt.
+Behaviour classes read the clock through an injected `TimeProvider` (Matt, 2026-10-04). `DateTime.Now` and
+`DateTimeOffset.Now` are never used. `DateTime.UtcNow` and `DateTimeOffset.UtcNow` are allowed only in data types
+and static helpers that cannot take a dependency. Tests supply a `FakeTimeProvider`. (When ruled, 38 files already
+injected `TimeProvider`, 7 sites used `.Now`, and 315 read `UtcNow` directly, mostly in behaviour classes; by-product.)
 
 ---
 
@@ -378,7 +377,10 @@ Not used:
 - `var` (section 2).
 - `dynamic` and `unsafe`, except inside a named interop boundary with a comment saying why (8 files today).
 - `goto` (0 today).
-- LINQ query syntax (`from x in ...`); method syntax only (6 sites today). `DECISION (Matt)`: recommended as a rule.
+- LINQ query syntax (`from x in ...`); method syntax only (Matt, 2026-10-04; 6 sites when ruled).
+- Primary constructors on classes (section 4.6).
+- Newtonsoft.Json in new code (section 5).
+- `DateTime.Now` and `DateTimeOffset.Now` (section 11).
 - `async void` (section 6.6).
 - `#pragma warning disable` without a reason on the same line.
 - `TODO`, `FIXME`, `XXX`, `HACK` in comments: Sonar S1135 fails the build. Write "Pending:" or "Future work:" prose.
@@ -433,7 +435,11 @@ to a build error in one repo.
 16. **NEVER** exceed 500 lines in a production file without an entry in that repo's `CLAUDE.md`.
 17. **NEVER** write `TODO`, `FIXME`, `XXX` or `HACK` in a comment.
 18. **NEVER** disable an analyzer rule in a product repo's `.editorconfig`; the change is made in the home copy or not at all.
-19. **NEVER** edit this skill outside an attended session with Matt, who owns it.
+19. **NEVER** read the clock with `DateTime.Now` or `DateTimeOffset.Now`; inject `TimeProvider`.
+20. **NEVER** write LINQ query syntax; method syntax only.
+21. **NEVER** put a primary constructor on a class; records only.
+22. **NEVER** reference Newtonsoft.Json in new code; `System.Text.Json`.
+23. **NEVER** edit this skill outside an attended session with Matt, who owns it.
 
 ---
 
@@ -463,6 +469,9 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] Production file is 500 lines or fewer, or listed in the repo's `CLAUDE.md` with a reason
 - [ ] Disposable class is `sealed`, idempotent, and guards its public members
 - [ ] Base-class logging methods used where the base class provides them
+- [ ] Clock read through an injected `TimeProvider`; no `.Now`
+- [ ] No primary constructor on a class
+- [ ] JSON through `System.Text.Json`; LINQ in method syntax
 - [ ] No `TODO`, `FIXME`, `XXX`, `HACK`; no commented-out code; no new suppression without a reason
 - [ ] Nothing marked `DECISION (Matt)` in this skill was treated as a rule
 
@@ -473,8 +482,7 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 | Section | Decision | Recommended | Evidence (2026-10-04) |
 |---|---|---|---|
 | 2 | One type per file | Adopt | Starter kit says it; 80 multi-type files, mostly row classes beside repositories |
-| 4.6 | Primary constructors | Records only | 30 uses; conflicts with validation and the readonly-field pattern |
-| 5 | JSON library | System.Text.Json | 219 files vs 21 Newtonsoft, all in one repo |
-| 11 | Time | Inject `TimeProvider`; never `.Now` | 38 files already; 7 `.Now`; 315 direct `UtcNow` |
-| 12 | LINQ query syntax | Method syntax only | 6 sites |
 | 5 | Typed identifiers and value objects | Deferred by ruling | Touches Dapper and every repository signature |
+
+Ruled 2026-10-04 and now in the body as rules: primary constructors on records only (4.6), `System.Text.Json` (5),
+injected `TimeProvider` (11), LINQ method syntax only (12).

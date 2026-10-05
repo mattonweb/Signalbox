@@ -166,7 +166,7 @@ csharp_prefer_simple_using_statement = true
 csharp_prefer_system_threading_lock = true
 csharp_style_namespace_declarations = file_scoped # aligned 2026-10-04: every repo is file-scoped (was block_scoped, against the code)
 csharp_style_prefer_method_group_conversion = true
-csharp_style_prefer_primary_constructors = true
+csharp_style_prefer_primary_constructors = false # Ruled 2026-10-04: primary constructors on records only; behaviour classes validate in an explicit constructor
 csharp_style_prefer_simple_property_accessors = true
 csharp_style_prefer_top_level_statements = true
 
