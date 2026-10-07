@@ -23,6 +23,8 @@ document is the rule.
   its "usings outside the namespace" line is corrected here because StyleCop SA1200 rejects it.
 - Repository Starter Kit `github/instructions/object-calisthenics.instructions.md`: the nine original rules. Each
   rule's house disposition is in [references/object-calisthenics.md](references/object-calisthenics.md).
+- Microsoft's C# version history (learn.microsoft.com, "The history of C#", 2025-11-18 revision): the feature list
+  behind [references/csharp-language-features.md](references/csharp-language-features.md).
 - A private product repo's "build landmines" note: the analyzer rules that fail a build during ordinary coding.
   Carried as section 13; the note itself is not public.
 
@@ -375,6 +377,11 @@ injected `TimeProvider`, 7 sites used `.Now`, and 315 read `UtcNow` directly, mo
 ---
 
 ## 12. Language features
+
+**The baseline is C# 7.3.** Every feature added since is listed, version by version, with its house usage and its
+disposition (`Allowed`, `Not allowed`, `Pending`) in [references/csharp-language-features.md](references/csharp-language-features.md).
+A `Pending` feature is not adopted: do not introduce it in new code until its row says `Allowed`. The lists below are
+the summary; the reference is the rule.
 
 Allowed and preferred: records, `init`, `required`, pattern matching (`is null`, `is not null`, property
 patterns), switch expressions, collection expressions, target-typed `new()` when the type is on the left,
