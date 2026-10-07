@@ -403,8 +403,9 @@ injected `TimeProvider`, 7 sites used `.Now`, and 315 read `UtcNow` directly, mo
 
 **The baseline is C# 7.3.** Every feature added since is listed, version by version, with its house usage and its
 disposition (`Allowed`, `Not allowed`, `Pending`) in [references/csharp-language-features.md](references/csharp-language-features.md).
-A `Pending` feature is not adopted: do not introduce it in new code until its row says `Allowed`. The lists below are
-the summary; the reference is the rule.
+A `Pending` feature is not adopted: do not introduce it in new code until its row says `Allowed`. A `Restricted`
+feature is used only where the plain form would be worse, with a one-line reason in a comment above every use. The
+lists below are the summary; the reference is the rule.
 
 Allowed and preferred: records, `init`, `required`, pattern matching (`is null`, `is not null`, property
 patterns), switch expressions, collection expressions, target-typed `new()` when the type is on the left,

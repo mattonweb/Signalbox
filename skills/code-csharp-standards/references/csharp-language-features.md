@@ -9,10 +9,18 @@ house code already uses it, and its disposition.
 the compiler accepts everything on this page. Accepting is not adopting. A coding agent reads this page to learn which
 features the house writes and which it does not, and a reviewer reads it to check a diff.
 
-**Dispositions.** `Allowed`, `Not allowed`, or `Pending`. A `Pending` row is not a rule in either direction; it is a
-feature Matt has not yet ruled on, and a coding agent treats it as *not yet adopted*: do not introduce it in new code
-until the row says `Allowed`. Where a row's disposition follows from a rule already in `SKILL.md`, the section is cited.
-Only Matt changes a disposition, in an attended session.
+**Dispositions.** `Allowed`, `Restricted`, `Not allowed`, or `Pending`.
+
+- `Allowed`: use it where it fits; the row may carry a house convention.
+- `Restricted`: allowed only where the plain form would be worse, and **every use carries a one-line comment
+  immediately above it saying why**. A reviewer rejects a Restricted feature with no reason, and rejects the reason
+  when the plain form would have read as well. An agent reaches for the plain form first. This is the same
+  mechanism as the exception-boundary rule in `SKILL.md` section 7: permission plus a stated reason at the site.
+- `Not allowed`: never in new code; existing uses are refactor by-product, and the row keeps the count.
+- `Pending`: not yet ruled; a coding agent treats it as *not adopted* and does not introduce it in new code.
+
+Where a row's disposition follows from a rule already in `SKILL.md`, the section is cited. Only Matt changes a
+disposition, in an attended session.
 
 **House usage** is the count of source lines (and files) across the eight C# repositories on 2026-10-07, 3,386
 files, by pattern match. It is a cost estimate for a `Not allowed` ruling and a signal of house practice, not an
@@ -41,7 +49,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Nullable reference types | `string?` annotations and null-state analysis; `<Nullable>enable</Nullable>` in every project | 5,112 lines / 1,388 files | Allowed (required: every project enables it) |
 | Switch expressions | `x switch { ... }` returning a value | 168 / 118 | Allowed; every arm breaks after `=>` (SKILL.md section 6.4, ruled 2026-10-07) |
 | Property patterns | `obj is { Length: > 0 }` | 117 / 82 | Allowed (SKILL.md section 12) |
-| Tuple and positional patterns | `(a, b) switch { (0, _) => ... }`, deconstruction in patterns | 2 / 1 | Pending |
+| Tuple and positional patterns | `(a, b) switch { (0, _) => ... }`, deconstruction in patterns | 2 / 1 | Restricted (ruled 2026-10-07): only where several co-varying inputs would otherwise be a nested `if` chain, with the reason stated; pattern variables are typed, `(int w, int h)`, never `var` |
 | Using declarations | `using var x = ...;` without a block | 469 / 226 | Pending (the `.editorconfig` disables IDE0063, so both forms are tolerated today) |
 | Static local functions | `static int Helper(...)` inside a method, no captures | 2 / 2 | Pending |
 | Readonly instance members | `readonly` on a struct member that does not mutate | 15 / 14 | Pending |
