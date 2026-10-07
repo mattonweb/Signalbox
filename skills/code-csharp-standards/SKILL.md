@@ -291,19 +291,42 @@ Place place = await this._repository.GetAsync(id, cancellationToken).ConfigureAw
 
 Measured 2026-10-04: 232 lines in 134 files to bring under the rule, none of them LINQ or `ConfigureAwait`.
 
-### 6.4 First-class collections
+### 6.4 Switch expressions: every arm breaks after the arrow
+
+A switch expression is preferred over a `switch` statement wherever the result is a value. **Every arm puts its
+value on the line after the `=>`, indented one level, and ends in a comma, in every switch expression, however
+short the arms are** (Matt, 2026-10-07: *"always break"*). The pattern column and the value column then read as a
+table. No analyzer enforces this layout; it is checked at review.
+
+```csharp
+return dateTime.Kind switch
+{
+    DateTimeKind.Utc =>
+        dateTime,
+    DateTimeKind.Unspecified =>
+        DateTime.SpecifyKind(dateTime, DateTimeKind.Utc),
+    DateTimeKind.Local =>
+        dateTime.ToUniversalTime(),
+    _ =>
+        DateTime.SpecifyKind(dateTime, DateTimeKind.Utc),
+};
+```
+
+A `switch` statement remains the right tool when an arm must run statements rather than yield a value.
+
+### 6.5 First-class collections
 
 A class that holds a collection holds nothing else but that collection and the behaviour over it. A behaviour
 class does not expose a raw `List<T>` of domain items; it holds a type that wraps the collection and answers the
 questions callers ask of it.
 
-### 6.5 No abbreviations
+### 6.6 No abbreviations
 
 Names are whole words: `repository` not `repo`, `configuration` not `cfg`, `cancellationToken` not `ct`.
 Acronyms that are words in the domain (`Id`, `Url`, `Csv`, `Fips`, `Ats`, `Mcp`) are fine and are cased as words:
 `Id`, not `ID`.
 
-### 6.6 Async
+### 6.7 Async
 
 - `CancellationToken cancellationToken = default` is **always the last parameter**, after required and optional
   parameters (Roadbed standards, carried; matches the base class library).
@@ -441,23 +464,24 @@ to a build error in one repo.
 6. **NEVER** hold a primitive as a behaviour class's own state; use one options type.
 7. **NEVER** declare a non-readonly instance field on a behaviour class.
 8. **NEVER** chain more than two dots outside LINQ and `ConfigureAwait`; StringBuilder goes one call per statement.
-9. **NEVER** nest more than one level inside a method body.
-10. **NEVER** catch `Exception` outside a job, endpoint or loader boundary, and never without the pragma and a reason.
-11. **NEVER** block on a task with `.Result` or `.Wait()`.
-12. **NEVER** place a `CancellationToken` anywhere but last.
-13. **NEVER** file a data type under `Services/`, `Repositories/` or `Orchestrators/`.
-14. **NEVER** put a method body on an entity, DTO or POCO.
-15. **NEVER** abbreviate an identifier.
-16. **NEVER** exceed 500 lines in a production file without an entry in that repo's `CLAUDE.md`.
-17. **NEVER** write `TODO`, `FIXME`, `XXX` or `HACK` in a comment.
-18. **NEVER** disable an analyzer rule in a product repo's `.editorconfig`; the change is made in the home copy or not at all.
-19. **NEVER** read the clock with `DateTime.Now` or `DateTimeOffset.Now`; inject `TimeProvider`.
-20. **NEVER** write LINQ query syntax; method syntax only.
-21. **NEVER** put a primary constructor on a class; records only.
-22. **NEVER** reference Newtonsoft.Json in new code; `System.Text.Json`.
-23. **NEVER** give a domain concept a bare primitive type on an entity or in a signature; wrap it.
-24. **NEVER** `using Dapper;` in a product repo; reach the database through Roadbed's data abstractions.
-25. **NEVER** edit this skill outside an attended session with Matt, who owns it.
+9. **NEVER** put a switch-expression arm's value on the same line as its `=>`; every arm breaks after the arrow.
+10. **NEVER** nest more than one level inside a method body.
+11. **NEVER** catch `Exception` outside a job, endpoint or loader boundary, and never without the pragma and a reason.
+12. **NEVER** block on a task with `.Result` or `.Wait()`.
+13. **NEVER** place a `CancellationToken` anywhere but last.
+14. **NEVER** file a data type under `Services/`, `Repositories/` or `Orchestrators/`.
+15. **NEVER** put a method body on an entity, DTO or POCO.
+16. **NEVER** abbreviate an identifier.
+17. **NEVER** exceed 500 lines in a production file without an entry in that repo's `CLAUDE.md`.
+18. **NEVER** write `TODO`, `FIXME`, `XXX` or `HACK` in a comment.
+19. **NEVER** disable an analyzer rule in a product repo's `.editorconfig`; the change is made in the home copy or not at all.
+20. **NEVER** read the clock with `DateTime.Now` or `DateTimeOffset.Now`; inject `TimeProvider`.
+21. **NEVER** write LINQ query syntax; method syntax only.
+22. **NEVER** put a primary constructor on a class; records only.
+23. **NEVER** reference Newtonsoft.Json in new code; `System.Text.Json`.
+24. **NEVER** give a domain concept a bare primitive type on an entity or in a signature; wrap it.
+25. **NEVER** `using Dapper;` in a product repo; reach the database through Roadbed's data abstractions.
+26. **NEVER** edit this skill outside an attended session with Matt, who owns it.
 
 ---
 
@@ -479,6 +503,7 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] No method body nests more than one level
 - [ ] Guard clauses; no `else` except the single-assignment case
 - [ ] No chain over two dots outside LINQ and `ConfigureAwait`; StringBuilder calls are one per statement
+- [ ] Every switch-expression arm breaks after `=>`, value indented on the next line
 - [ ] Fully qualified type names replaced by `using` directives
 - [ ] No abbreviations in identifiers
 - [ ] `CancellationToken` is last; every `await` has `ConfigureAwait(false)`; no `.Result`, `.Wait()`, `async void`

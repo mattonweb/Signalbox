@@ -39,7 +39,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Feature | What it is | House use | Disposition |
 |---|---|---|---|
 | Nullable reference types | `string?` annotations and null-state analysis; `<Nullable>enable</Nullable>` in every project | 5,112 lines / 1,388 files | Allowed (required: every project enables it) |
-| Switch expressions | `x switch { ... }` returning a value | 168 / 118 | Allowed (SKILL.md section 12) |
+| Switch expressions | `x switch { ... }` returning a value | 168 / 118 | Allowed; every arm breaks after `=>` (SKILL.md section 6.4, ruled 2026-10-07) |
 | Property patterns | `obj is { Length: > 0 }` | 117 / 82 | Allowed (SKILL.md section 12) |
 | Tuple and positional patterns | `(a, b) switch { (0, _) => ... }`, deconstruction in patterns | 2 / 1 | Pending |
 | Using declarations | `using var x = ...;` without a block | 469 / 226 | Pending (the `.editorconfig` disables IDE0063, so both forms are tolerated today) |
