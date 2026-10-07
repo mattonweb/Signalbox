@@ -420,7 +420,7 @@ Not used:
 - Primary constructors on classes (section 4.6).
 - Newtonsoft.Json in new code (section 5).
 - `DateTime.Now` and `DateTimeOffset.Now` (section 11).
-- `async void` (section 6.6).
+- `async void` (section 6.7).
 - `#pragma warning disable` without a reason on the same line.
 - `TODO`, `FIXME`, `XXX`, `HACK` in comments: Sonar S1135 fails the build. Write "Pending:" or "Future work:" prose.
 - Commented-out code. Delete it; git remembers.

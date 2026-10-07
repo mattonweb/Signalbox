@@ -29,7 +29,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | `dynamic` | 4.0 | Not allowed outside a named interop boundary | SKILL.md section 12 |
 | `unsafe` | 1.0 | Not allowed outside a named interop boundary | SKILL.md section 12 |
 | `goto` | 1.0 | Not allowed | SKILL.md section 12 |
-| `async void` | 5.0 | Not allowed | SKILL.md section 6.6 |
+| `async void` | 5.0 | Not allowed | SKILL.md section 6.7 |
 | Block-scoped namespaces | 1.0 | Not allowed; file-scoped only | SKILL.md section 2 |
 
 ---
