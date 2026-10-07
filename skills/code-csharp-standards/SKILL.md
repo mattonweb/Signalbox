@@ -411,8 +411,8 @@ lists below are the summary; the reference is the rule.
 
 Allowed and preferred: records, `init`, `required`, pattern matching (`is null`, `is not null`, property
 patterns), switch expressions, collection expressions, target-typed `new()` when the type is on the left,
-`nameof`, string interpolation, tuples for private return values, local functions, `static` lambdas,
-expression-bodied members where the body is one expression.
+`nameof`, string interpolation, tuples for private return values, `static` lambdas, expression-bodied members
+where the body is one expression.
 
 Not used:
 
@@ -423,7 +423,8 @@ Not used:
 - Primary constructors on classes (section 4.6).
 - Newtonsoft.Json in new code (section 5).
 - `DateTime.Now` and `DateTimeOffset.Now` (section 11).
-- Static local functions; a private static method on the class instead (Matt, 2026-10-07).
+- Local functions of any kind, static or capturing; a private method on the class instead, with captured variables
+  as parameters, so it is named and carries an XML summary (Matt, 2026-10-07). 10 existing sites are by-product.
 - Using declarations (`using var x = ...;`); the block form with braces is the house way (Matt, 2026-10-07: the
   indentation makes the resource's scope visible). 469 existing declarations are by-product.
 - `async void` (section 6.7).
@@ -512,6 +513,7 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] Every switch-expression arm breaks after `=>`, value indented on the next line
 - [ ] Fully qualified type names replaced by `using` directives
 - [ ] No abbreviations in identifiers
+- [ ] No local functions; helpers are private methods with XML summaries
 - [ ] `CancellationToken` is last; every `await` has `ConfigureAwait(false)`; no `.Result`, `.Wait()`, `async void`
 - [ ] `catch (Exception)` only at a named boundary, with the CA1031 pragma and a one-line reason
 - [ ] Rethrows are `throw;`
