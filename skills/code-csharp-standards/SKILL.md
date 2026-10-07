@@ -423,6 +423,7 @@ Not used:
 - Primary constructors on classes (section 4.6).
 - Newtonsoft.Json in new code (section 5).
 - `DateTime.Now` and `DateTimeOffset.Now` (section 11).
+- Static local functions; a private static method on the class instead (Matt, 2026-10-07).
 - Using declarations (`using var x = ...;`); the block form with braces is the house way (Matt, 2026-10-07: the
   indentation makes the resource's scope visible). 469 existing declarations are by-product.
 - `async void` (section 6.7).

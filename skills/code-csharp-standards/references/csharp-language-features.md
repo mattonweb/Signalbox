@@ -51,7 +51,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Property patterns | `obj is { Length: > 0 }` | 117 / 82 | Allowed (SKILL.md section 12) |
 | Tuple and positional patterns | `(a, b) switch { (0, _) => ... }`, deconstruction in patterns | 2 / 1 | Restricted (ruled 2026-10-07): only where several co-varying inputs would otherwise be a nested `if` chain, with the reason stated; pattern variables are typed, `(int w, int h)`, never `var` |
 | Using declarations | `using var x = ...;` without a block | 469 / 226 | Not allowed (ruled 2026-10-07): the block form with braces is the house way, the indentation shows the resource's scope; `using`, `try` and `lock` blocks do not count toward the one-level rule (SKILL.md 6.1) |
-| Static local functions | `static int Helper(...)` inside a method, no captures | 2 / 2 | Pending |
+| Static local functions | `static int Helper(...)` inside a method, no captures | 2 / 2 | Not allowed (ruled 2026-10-07): a private static method on the class instead; the compiler emits the same code, and a private method is named, documented and visible in the class's shape |
 | Readonly instance members | `readonly` on a struct member that does not mutate | 15 / 14 | Pending |
 | Default interface members | Method bodies in an interface | n/m | Pending |
 | Asynchronous streams | `IAsyncEnumerable<T>` and `await foreach` | 11 / 6 | Pending |
