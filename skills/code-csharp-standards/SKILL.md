@@ -232,8 +232,10 @@ The nine Object Calisthenics rules behind this section, with each one's house di
 
 ### 6.1 One level of indentation per method
 
-A method body has one level of nesting: one `if`, one loop, one `using`. A second level is extracted to a named
-private method, or removed by filtering first (`foreach` over `rows.Where(...)` instead of `foreach` then `if`).
+A method body has one level of *logic* nesting: one `if`, one loop, one `switch`. A second level is extracted to a
+named private method, or removed by filtering first (`foreach` over `rows.Where(...)` instead of `foreach` then `if`).
+**`using`, `try` and `lock` blocks do not count toward the level** (Matt, 2026-10-07): they frame the method rather
+than branch it, so a connection block holding a command block holding one loop is one level, not three.
 
 ### 6.2 Guard clauses, not `else`
 
@@ -421,6 +423,8 @@ Not used:
 - Primary constructors on classes (section 4.6).
 - Newtonsoft.Json in new code (section 5).
 - `DateTime.Now` and `DateTimeOffset.Now` (section 11).
+- Using declarations (`using var x = ...;`); the block form with braces is the house way (Matt, 2026-10-07: the
+  indentation makes the resource's scope visible). 469 existing declarations are by-product.
 - `async void` (section 6.7).
 - `#pragma warning disable` without a reason on the same line.
 - `TODO`, `FIXME`, `XXX`, `HACK` in comments: Sonar S1135 fails the build. Write "Pending:" or "Future work:" prose.
@@ -466,7 +470,7 @@ to a build error in one repo.
 7. **NEVER** declare a non-readonly instance field on a behaviour class.
 8. **NEVER** chain more than two dots outside LINQ and `ConfigureAwait`; StringBuilder goes one call per statement.
 9. **NEVER** put a switch-expression arm's value on the same line as its `=>`; every arm breaks after the arrow.
-10. **NEVER** nest more than one level inside a method body.
+10. **NEVER** nest more than one level of logic inside a method body; `using`, `try` and `lock` blocks do not count.
 11. **NEVER** catch `Exception` outside a job, endpoint or loader boundary, and never without the pragma and a reason.
 12. **NEVER** block on a task with `.Result` or `.Wait()`.
 13. **NEVER** place a `CancellationToken` anywhere but last.
@@ -501,7 +505,7 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] Behaviour class's own state is at most two non-primitive members; configuration is one options type
 - [ ] Every instance field is `readonly`; properties are get-only or `init`
 - [ ] Every constructor parameter is validated with a throw helper; `nameof` wherever a parameter is named
-- [ ] No method body nests more than one level
+- [ ] No method body nests more than one level of logic (`using`, `try` and `lock` blocks do not count)
 - [ ] Guard clauses; no `else` except the single-assignment case
 - [ ] No chain over two dots outside LINQ and `ConfigureAwait`; StringBuilder calls are one per statement
 - [ ] Every switch-expression arm breaks after `=>`, value indented on the next line

@@ -162,7 +162,7 @@ csharp_style_prefer_readonly_struct_member = true
 
 # Code-block preferences
 csharp_prefer_braces = true
-csharp_prefer_simple_using_statement = true
+csharp_prefer_simple_using_statement = false # Ruled 2026-10-07: using blocks with braces, never using declarations; the indentation shows the scope
 csharp_prefer_system_threading_lock = true
 csharp_style_namespace_declarations = file_scoped # aligned 2026-10-04: every repo is file-scoped (was block_scoped, against the code)
 csharp_style_prefer_method_group_conversion = true

@@ -50,7 +50,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Switch expressions | `x switch { ... }` returning a value | 168 / 118 | Allowed; every arm breaks after `=>` (SKILL.md section 6.4, ruled 2026-10-07) |
 | Property patterns | `obj is { Length: > 0 }` | 117 / 82 | Allowed (SKILL.md section 12) |
 | Tuple and positional patterns | `(a, b) switch { (0, _) => ... }`, deconstruction in patterns | 2 / 1 | Restricted (ruled 2026-10-07): only where several co-varying inputs would otherwise be a nested `if` chain, with the reason stated; pattern variables are typed, `(int w, int h)`, never `var` |
-| Using declarations | `using var x = ...;` without a block | 469 / 226 | Pending (the `.editorconfig` disables IDE0063, so both forms are tolerated today) |
+| Using declarations | `using var x = ...;` without a block | 469 / 226 | Not allowed (ruled 2026-10-07): the block form with braces is the house way, the indentation shows the resource's scope; `using`, `try` and `lock` blocks do not count toward the one-level rule (SKILL.md 6.1) |
 | Static local functions | `static int Helper(...)` inside a method, no captures | 2 / 2 | Pending |
 | Readonly instance members | `readonly` on a struct member that does not mutate | 15 / 14 | Pending |
 | Default interface members | Method bodies in an interface | n/m | Pending |
