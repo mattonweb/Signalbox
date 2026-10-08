@@ -54,7 +54,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Using declarations | `using var x = ...;` without a block | 469 / 226 | Not allowed (ruled 2026-10-07): the block form with braces is the house way, the indentation shows the resource's scope; `using`, `try` and `lock` blocks do not count toward the one-level rule (SKILL.md 6.1) |
 | Static local functions | `static int Helper(...)` inside a method, no captures | 2 / 2 | Not allowed (ruled 2026-10-07): local functions of any kind are private methods (baseline table); the compiler emits the same code, and a private method is named, documented and visible in the class's shape |
 | Readonly instance members | `readonly` on a struct member that does not mutate | 15 / 14 | Not allowed (ruled 2026-10-07): unreachable under the immutability rule (SKILL.md 4.4) and `readonly record struct` as the house wrapper; a struct never has mutable state for a member to promise not to touch |
-| Default interface members | Method bodies in an interface | n/m | Pending |
+| Default interface members | Method bodies in an interface | n/m | Not allowed (ruled 2026-10-07): an interface declares, a base class or service implements; a body in an interface is behaviour with no place in the taxonomy (SKILL.md 3), and the versioning case it exists for does not arise when every implementer is in a house repo |
 | Asynchronous streams | `IAsyncEnumerable<T>` and `await foreach` | 11 / 6 | Pending |
 | Indices and ranges | `^1`, `a[1..^1]` | 144 / 89 | Pending |
 | Null-coalescing assignment | `x ??= value` | 30 / 17 | Pending |
