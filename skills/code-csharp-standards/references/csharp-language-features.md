@@ -90,7 +90,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 |---|---|---|---|
 | File-scoped namespace declaration | `namespace X;` as the first line | 3,371 / 3,371 | Allowed and required (SKILL.md section 2) |
 | Record structs | `record struct`, `readonly record struct` | 6 / 6 | Allowed (SKILL.md section 5 names it for wrapped primitives) |
-| Global using directives | `global using X;` once per project | 0 | Pending (`<ImplicitUsings>` is on in every project, which is the SDK's own global usings) |
+| Global using directives | `global using X;` once per project | 0 | Not allowed (ruled 2026-10-07): every file states its own usings, `using System;` included. `<ImplicitUsings>enable</ImplicitUsings>` is the same feature by another route and is to be removed from every project file in a future pass (99 projects; up to 903 files then gain the explicit lines the compiler asks for) |
 | Extended property patterns | `is { A.B: value }` | 0 | Pending |
 | `with` expressions on structs and anonymous types | Non-destructive mutation beyond records | 54 / 24 (all `with`, any type) | Pending (the MSTest skill forbids `with` in tests) |
 | Interpolated string handlers | Custom `$""` processing, mostly for logging and performance | 0 | Pending |

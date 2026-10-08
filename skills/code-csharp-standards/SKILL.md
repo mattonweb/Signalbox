@@ -35,8 +35,10 @@ leaves it.
 
 ## 1. Toolchain facts the rules depend on
 
-- Every project targets `net10.0` with `<Nullable>enable</Nullable>`, `<ImplicitUsings>enable</ImplicitUsings>`,
-  `<GenerateDocumentationFile>true</GenerateDocumentationFile>` and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
+- Every project targets `net10.0` with `<Nullable>enable</Nullable>`, `<GenerateDocumentationFile>true</GenerateDocumentationFile>`
+  and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`. `<ImplicitUsings>enable</ImplicitUsings>` is still present in
+  every project and **is to be removed** (Matt, 2026-10-07): a file states every namespace it uses, `using System;` included,
+  and nothing arrives from a hidden list.
 - Analyzers in every project: `StyleCop.Analyzers` **1.1.118**, `SonarAnalyzer.CSharp`,
   `Microsoft.CodeAnalysis.NetAnalyzers`. StyleCop is the binding style tool because its warnings are errors. The
   `.editorconfig` IDE rules are hints only, since `EnforceCodeStyleInBuild` is not set.
@@ -424,6 +426,7 @@ Not used:
 - Newtonsoft.Json in new code (section 5).
 - `DateTime.Now` and `DateTimeOffset.Now` (section 11).
 - Null-coalescing assignment (`x ??= value`); the `if` is written out (Matt, 2026-10-07). 30 lines by-product.
+- Global using directives; each file lists its own usings, `using System;` included (Matt, 2026-10-07).
 - Top-level statements; `Program.cs` holds a documented `Program` class with a documented `Main` (Matt, 2026-10-07).
 - `stackalloc` inside an expression; only as a variable initialiser (Matt, 2026-10-07).
 - `@$"..."`; a verbatim interpolated string is always spelled `$@"..."` (Matt, 2026-10-07).
