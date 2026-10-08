@@ -56,7 +56,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Readonly instance members | `readonly` on a struct member that does not mutate | 15 / 14 | Not allowed (ruled 2026-10-07): unreachable under the immutability rule (SKILL.md 4.4) and `readonly record struct` as the house wrapper; a struct never has mutable state for a member to promise not to touch |
 | Default interface members | Method bodies in an interface | n/m | Not allowed (ruled 2026-10-07): an interface declares, a base class or service implements; a body in an interface is behaviour with no place in the taxonomy (SKILL.md 3), and the versioning case it exists for does not arise when every implementer is in a house repo |
 | Asynchronous streams | `IAsyncEnumerable<T>` and `await foreach` | 11 / 6 | Restricted (ruled 2026-10-07): only where the sequence is unbounded, too large to buffer, or produced by another task over time, with the reason stated at the producer; a method that could return a list returns a list. Producer takes `[EnumeratorCancellation] CancellationToken` last |
-| Indices and ranges | `^1`, `a[1..^1]` | 144 / 89 | Pending |
+| Indices and ranges | `^1`, `a[1..^1]` | 144 / 89 | Not allowed (ruled 2026-10-07): `Substring`, `Length - n`, `list[list.Count - 1]`, `Path.GetFileName(uri.LocalPath)` for a last URL segment; the January standards' `uri.Segments[^1]` is superseded. 144 lines by-product |
 | Null-coalescing assignment | `x ??= value` | 30 / 17 | Pending |
 | Disposable ref structs | `ref struct` with a `Dispose` pattern | n/m | Pending |
 | Unmanaged constructed types | `where T : unmanaged` on constructed types | n/m | Pending |
