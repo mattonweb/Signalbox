@@ -424,6 +424,7 @@ Not used:
 - Newtonsoft.Json in new code (section 5).
 - `DateTime.Now` and `DateTimeOffset.Now` (section 11).
 - Null-coalescing assignment (`x ??= value`); the `if` is written out (Matt, 2026-10-07). 30 lines by-product.
+- Top-level statements; `Program.cs` holds a documented `Program` class with a documented `Main` (Matt, 2026-10-07).
 - `stackalloc` inside an expression; only as a variable initialiser (Matt, 2026-10-07).
 - `@$"..."`; a verbatim interpolated string is always spelled `$@"..."` (Matt, 2026-10-07).
 - Indices and ranges (`^1`, `a[1..]`); `Substring`, explicit lengths and `Count - 1` instead (Matt, 2026-10-07). 144 lines

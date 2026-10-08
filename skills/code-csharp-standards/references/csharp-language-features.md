@@ -69,7 +69,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 |---|---|---|---|
 | Records (reference) | `record` with value equality and `with` | 363 / 274 | Allowed (SKILL.md sections 5, 12) |
 | Init-only setters | `{ get; init; }` | 3,244 / 409 | Allowed (SKILL.md section 5) |
-| Top-level statements | A `Program.cs` with no class and no `Main` | n/m (the `.editorconfig` prefers them) | Pending |
+| Top-level statements | A `Program.cs` with no class and no `Main` | 0 of 16 entry points | Not allowed (ruled 2026-10-07): `Program.cs` holds a documented `Program` class with a documented `Main`, like every other file; the `.editorconfig` no longer prefers top-level statements |
 | Relational and logical patterns | `is not null`, `is > 0 and < 10`, `or` | 1,315 / 678 | Allowed (SKILL.md section 12) |
 | Target-typed `new` | `Foo f = new();` | 4 / 3 | Allowed when the type is on the left (SKILL.md section 12) |
 | Static anonymous functions | `static x => ...` lambdas with no captures | 55 / 18 | Allowed (SKILL.md section 12) |

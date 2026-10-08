@@ -168,7 +168,7 @@ csharp_style_namespace_declarations = file_scoped # aligned 2026-10-04: every re
 csharp_style_prefer_method_group_conversion = true
 csharp_style_prefer_primary_constructors = false # Ruled 2026-10-04: primary constructors on records only; behaviour classes validate in an explicit constructor
 csharp_style_prefer_simple_property_accessors = true
-csharp_style_prefer_top_level_statements = true
+csharp_style_prefer_top_level_statements = false # Ruled 2026-10-07: Program.cs keeps a documented class and Main; all 16 house entry points already do
 
 # Expression-level preferences
 csharp_prefer_simple_default_expression = true
