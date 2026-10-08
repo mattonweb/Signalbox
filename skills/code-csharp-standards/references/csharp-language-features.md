@@ -76,13 +76,13 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Target-typed conditional | `cond ? a : b` where branches convert to the target type | n/m | Allowed (ruled 2026-10-07): compiler leniency on an expression the house already writes; it only removes a cast |
 | Covariant return types | An override returns a more derived type | n/m | Allowed (ruled 2026-10-07): removes a cast that was always safe; reachable only in the Roadbed base-class hierarchies since classes are sealed by default |
 | Extension `GetEnumerator` in `foreach` | An extension method makes a type enumerable | n/m | Not allowed (ruled 2026-10-07): a type that should be enumerable implements `IEnumerable<T>` itself or is wrapped in a collection type (SKILL.md 6.5); enumeration bolted on from outside hides where behaviour lives |
-| Lambda discard parameters | `(_, _) => ...` | 1 / 1 | Pending |
-| Attributes on local functions | `[Attr] void Local() { }` | n/m | Pending |
-| Native-sized integers | `nint`, `nuint` | 0 | Pending |
-| Function pointers | `delegate* unmanaged<...>` | 0 | Pending (implies `unsafe`) |
-| Module initializers | `[ModuleInitializer]` | 0 | Pending |
-| `SkipLocalsInit` | Suppress the `localsinit` flag | 0 | Pending |
-| Partial method enhancements | Partial methods with return values and accessibility | n/m | Pending |
+| Lambda discard parameters | `(_, _) => ...` | 1 / 1 | Allowed (ruled 2026-10-07): says "unused" explicitly |
+| Attributes on local functions | `[Attr] void Local() { }` | n/m | Not allowed (ruled 2026-10-07): unreachable, local functions are not allowed |
+| Native-sized integers | `nint`, `nuint` | 0 | Not allowed (ruled 2026-10-07): interop territory, behind the `unsafe` boundary rule |
+| Function pointers | `delegate* unmanaged<...>` | 0 | Not allowed (ruled 2026-10-07): requires `unsafe` |
+| Module initializers | `[ModuleInitializer]` | 0 | Not allowed (ruled 2026-10-07): startup logic with no visible caller; installers are the house startup path |
+| `SkipLocalsInit` | Suppress the `localsinit` flag | 0 | Not allowed (ruled 2026-10-07): requires `unsafe` |
+| Partial method enhancements | Partial methods with return values and accessibility | n/m | Restricted (ruled 2026-10-07): only where a source generator requires the signature, with the generator named in the reason |
 
 ## C# 10 (November 2021, .NET 6)
 
