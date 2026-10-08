@@ -58,7 +58,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Asynchronous streams | `IAsyncEnumerable<T>` and `await foreach` | 11 / 6 | Restricted (ruled 2026-10-07): only where the sequence is unbounded, too large to buffer, or produced by another task over time, with the reason stated at the producer; a method that could return a list returns a list. Producer takes `[EnumeratorCancellation] CancellationToken` last |
 | Indices and ranges | `^1`, `a[1..^1]` | 144 / 89 | Not allowed (ruled 2026-10-07): `Substring`, `Length - n`, `list[list.Count - 1]`, `Path.GetFileName(uri.LocalPath)` for a last URL segment; the January standards' `uri.Segments[^1]` is superseded. 144 lines by-product |
 | Null-coalescing assignment | `x ??= value` | 30 / 17 | Not allowed (ruled 2026-10-07): written out as `if (x == null) { x = value; }`; shorthand that hides a branch. 30 lines by-product |
-| Disposable ref structs | `ref struct` with a `Dispose` pattern | n/m | Pending |
+| Disposable ref structs | `ref struct` with a `Dispose` pattern | n/m | Not allowed (ruled 2026-10-07): library-internals territory; the house writes no `ref struct`, and section 9's class-based disposal covers every resource it holds |
 | Unmanaged constructed types | `where T : unmanaged` on constructed types | n/m | Pending |
 | Stackalloc in nested expressions | `Span<int> s = stackalloc int[n];` inside an expression | 10 / 6 | Pending |
 | Interpolated verbatim strings, either order | `$@"..."` or `@$"..."` | 17 / 5 | Pending |
