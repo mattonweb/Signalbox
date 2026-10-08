@@ -59,9 +59,9 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Indices and ranges | `^1`, `a[1..^1]` | 144 / 89 | Not allowed (ruled 2026-10-07): `Substring`, `Length - n`, `list[list.Count - 1]`, `Path.GetFileName(uri.LocalPath)` for a last URL segment; the January standards' `uri.Segments[^1]` is superseded. 144 lines by-product |
 | Null-coalescing assignment | `x ??= value` | 30 / 17 | Not allowed (ruled 2026-10-07): written out as `if (x == null) { x = value; }`; shorthand that hides a branch. 30 lines by-product |
 | Disposable ref structs | `ref struct` with a `Dispose` pattern | n/m | Not allowed (ruled 2026-10-07): library-internals territory; the house writes no `ref struct`, and section 9's class-based disposal covers every resource it holds |
-| Unmanaged constructed types | `where T : unmanaged` on constructed types | n/m | Pending |
-| Stackalloc in nested expressions | `Span<int> s = stackalloc int[n];` inside an expression | 10 / 6 | Pending |
-| Interpolated verbatim strings, either order | `$@"..."` or `@$"..."` | 17 / 5 | Pending |
+| Unmanaged constructed types | `where T : unmanaged` on constructed types | n/m | Not allowed (ruled 2026-10-07): only matters inside `unsafe`, which SKILL.md 12 forbids outside a named interop boundary |
+| Stackalloc in nested expressions | `stackalloc` inside an expression, e.g. a call argument | 10 / 6 | Not allowed (ruled 2026-10-07): hides a stack allocation inside a call; the baseline form `Span<byte> buffer = stackalloc byte[n];` is unchanged. Nested uses among the 10 are by-product |
+| Interpolated verbatim strings, either order | `$@"..."` or `@$"..."` | 17 / 5 | Not allowed (ruled 2026-10-07): the new spelling `@$` is not used; the baseline `$@` is the one way to write it |
 
 ## C# 9.0 (November 2020, .NET 5)
 
