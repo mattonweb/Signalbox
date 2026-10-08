@@ -57,7 +57,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Default interface members | Method bodies in an interface | n/m | Not allowed (ruled 2026-10-07): an interface declares, a base class or service implements; a body in an interface is behaviour with no place in the taxonomy (SKILL.md 3), and the versioning case it exists for does not arise when every implementer is in a house repo |
 | Asynchronous streams | `IAsyncEnumerable<T>` and `await foreach` | 11 / 6 | Restricted (ruled 2026-10-07): only where the sequence is unbounded, too large to buffer, or produced by another task over time, with the reason stated at the producer; a method that could return a list returns a list. Producer takes `[EnumeratorCancellation] CancellationToken` last |
 | Indices and ranges | `^1`, `a[1..^1]` | 144 / 89 | Not allowed (ruled 2026-10-07): `Substring`, `Length - n`, `list[list.Count - 1]`, `Path.GetFileName(uri.LocalPath)` for a last URL segment; the January standards' `uri.Segments[^1]` is superseded. 144 lines by-product |
-| Null-coalescing assignment | `x ??= value` | 30 / 17 | Pending |
+| Null-coalescing assignment | `x ??= value` | 30 / 17 | Not allowed (ruled 2026-10-07): written out as `if (x == null) { x = value; }`; shorthand that hides a branch. 30 lines by-product |
 | Disposable ref structs | `ref struct` with a `Dispose` pattern | n/m | Pending |
 | Unmanaged constructed types | `where T : unmanaged` on constructed types | n/m | Pending |
 | Stackalloc in nested expressions | `Span<int> s = stackalloc int[n];` inside an expression | 10 / 6 | Pending |

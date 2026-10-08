@@ -423,6 +423,7 @@ Not used:
 - Primary constructors on classes (section 4.6).
 - Newtonsoft.Json in new code (section 5).
 - `DateTime.Now` and `DateTimeOffset.Now` (section 11).
+- Null-coalescing assignment (`x ??= value`); the `if` is written out (Matt, 2026-10-07). 30 lines by-product.
 - Indices and ranges (`^1`, `a[1..]`); `Substring`, explicit lengths and `Count - 1` instead (Matt, 2026-10-07). 144 lines
   by-product; the January standards' `uri.Segments[^1]` becomes `Path.GetFileName(uri.LocalPath)`.
 - Local functions of any kind, static or capturing; a private method on the class instead, with captured variables
