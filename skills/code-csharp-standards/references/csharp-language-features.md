@@ -75,7 +75,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Static anonymous functions | `static x => ...` lambdas with no captures | 55 / 18 | Allowed (SKILL.md section 12) |
 | Target-typed conditional | `cond ? a : b` where branches convert to the target type | n/m | Allowed (ruled 2026-10-07): compiler leniency on an expression the house already writes; it only removes a cast |
 | Covariant return types | An override returns a more derived type | n/m | Allowed (ruled 2026-10-07): removes a cast that was always safe; reachable only in the Roadbed base-class hierarchies since classes are sealed by default |
-| Extension `GetEnumerator` in `foreach` | An extension method makes a type enumerable | n/m | Pending |
+| Extension `GetEnumerator` in `foreach` | An extension method makes a type enumerable | n/m | Not allowed (ruled 2026-10-07): a type that should be enumerable implements `IEnumerable<T>` itself or is wrapped in a collection type (SKILL.md 6.5); enumeration bolted on from outside hides where behaviour lives |
 | Lambda discard parameters | `(_, _) => ...` | 1 / 1 | Pending |
 | Attributes on local functions | `[Attr] void Local() { }` | n/m | Pending |
 | Native-sized integers | `nint`, `nuint` | 0 | Pending |
