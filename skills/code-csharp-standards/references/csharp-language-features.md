@@ -108,16 +108,16 @@ audit; a row marked *n/m* was not measurable by pattern.
 |---|---|---|---|
 | Required members | `required` on a property or field; compiler enforces initialisation | 1,437 / 354 | Allowed (SKILL.md section 5). Written `required public` while StyleCop is 1.1.118 (section 1) |
 | Raw string literals | `"""..."""`, no escaping, multi-line | 132 / 24 | Allowed (ruled 2026-10-15): for text that belongs in the code, templates and test fixtures; SQL stays in `.txt` resource files as today |
-| Generic math: static abstract and static virtual interface members | `static abstract T operator +(T, T)` | 0 | Pending |
-| Generic attributes | `[Attr<T>]` | 0 | Pending |
-| UTF-8 string literals | `"text"u8` | 2 / 1 | Pending |
-| Newlines in interpolation holes | Multi-line expressions inside `{}` | n/m | Pending |
-| List patterns | `is [first, .., last]` | 0 | Pending |
-| File-local types | `file class X` | 0 | Pending |
-| Auto-default structs | Struct constructors need not set every field | n/m | Pending |
-| Pattern match `Span<char>` on a constant string | `span is "text"` | n/m | Pending |
-| Extended `nameof` scope | `nameof(parameter)` in parameter attributes | n/m | Pending |
-| `ref` fields and `scoped ref` | `ref` fields in `ref struct`; lifetime annotations | 4 / 2 | Pending |
+| Generic math: static abstract and static virtual interface members | `static abstract T operator +(T, T)` | 0 | Not allowed (ruled 2026-10-15): numeric-library territory; consuming `INumber<T>` from the base library is using the library |
+| Generic attributes | `[Attr<T>]` | 0 | Allowed (ruled 2026-10-15): type-safe where `typeof(T)` took any type |
+| UTF-8 string literals | `"text"u8` | 2 / 1 | Restricted (ruled 2026-10-15): byte-level I/O only, with the reason stated |
+| Newlines in interpolation holes | Multi-line expressions inside `{}` | n/m | Not allowed (ruled 2026-10-15): compute the value on its own line, then interpolate the name |
+| List patterns | `is [first, .., last]` | 0 | Restricted (ruled 2026-10-15): same terms as tuple and positional patterns; typed pattern variables, reason stated |
+| File-local types | `file class X` | 0 | Not allowed (ruled 2026-10-15): a source-generator device that conflicts with one type per file |
+| Auto-default structs | Struct constructors need not set every field | n/m | Allowed (ruled 2026-10-15): compiler leniency, no syntax |
+| Pattern match `Span<char>` on a constant string | `span is "text"` | n/m | Allowed (ruled 2026-10-15): compiler leniency, no syntax |
+| Extended `nameof` scope | `nameof(parameter)` in parameter attributes | n/m | Allowed (ruled 2026-10-15): what `[CallerArgumentExpression(nameof(argument))]` relies on |
+| `ref` fields and `scoped ref` | `ref` fields in `ref struct`; lifetime annotations | 4 / 2 | Not allowed (ruled 2026-10-15): `Span<T>`-internals territory; 4 sites by-product |
 | Improved method group conversion | Compiler caches delegates for method groups | automatic | Allowed (no syntax; compiler behaviour) |
 
 ## C# 12 (November 2023, .NET 8)
