@@ -93,14 +93,14 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Global using directives | `global using X;` once per project | 0 | Not allowed (ruled 2026-10-07): every file states its own usings, `using System;` included. `<ImplicitUsings>enable</ImplicitUsings>` is the same feature by another route and is to be removed from every project file in a future pass (99 projects; up to 903 files then gain the explicit lines the compiler asks for) |
 | Extended property patterns | `is { A.B: value }` | 0 | Not allowed (ruled 2026-10-15): the dotted path is the reach-through shape of the two-dots rule inside a pattern; nested braces `{ A: { B: value } }` are the house form and keep each level visible |
 | `with` expressions on structs and anonymous types | Non-destructive mutation beyond records | 6 production / 3 test (all on records; an earlier count of 54 matched the word in log strings) | Allowed on records and record structs (ruled 2026-10-15): the immutability rule's own tool, and a copy that carries new members automatically. Not allowed on anonymous types. In test code the MSTest skill's ban stands: every value written out |
-| Interpolated string handlers | Custom `$""` processing, mostly for logging and performance | 0 | Pending |
-| Lambda natural type and explicit return type | `var f = () => 1;`, `int () => 1` | n/m | Pending |
-| Attributes on lambdas | `[Attr] () => ...` | n/m | Pending |
-| Constant interpolated strings | `const string s = $"{A}{B}";` | 0 | Pending |
-| `sealed` on record `ToString` override | Stops derived records regenerating it | 0 | Pending |
-| Mixed declaration and assignment in deconstruction | `(x, int y) = tuple;` | n/m | Pending |
+| Interpolated string handlers | Custom `$""` processing, mostly for logging and performance | 0 | Not allowed to author (ruled 2026-10-15); libraries that use them, such as the logging abstractions, are simply used |
+| Lambda natural type and explicit return type | `var f = () => 1;`, `int () => 1` | n/m | Natural type Not allowed (needs `var`; a lambda is assigned to a declared `Func<>` or `Action<>`); explicit return type Allowed where the compiler asks for one (ruled 2026-10-15) |
+| Attributes on lambdas | `[Attr] () => ...` | n/m | Not allowed (ruled 2026-10-15): the house uses endpoint classes, not inline lambdas |
+| Constant interpolated strings | `const string s = $"{A}{B}";` | 0 | Allowed (ruled 2026-10-15): replaces concatenation in constant declarations |
+| `sealed` on record `ToString` override | Stops derived records regenerating it | 0 | Not allowed (ruled 2026-10-15): unreachable, records are sealed |
+| Mixed declaration and assignment in deconstruction | `(x, int y) = tuple;` | n/m | Not allowed (ruled 2026-10-15): hides which names are new; declare first, then deconstruct |
 | `CallerArgumentExpression` | Captures an argument's source text | 1 / 1 | Pending |
-| `AsyncMethodBuilder` on methods | Custom async builders | n/m | Pending |
+| `AsyncMethodBuilder` on methods | Custom async builders | n/m | Not allowed (ruled 2026-10-15): runtime-internals territory |
 
 ## C# 11 (November 2022, .NET 7)
 
