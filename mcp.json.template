@@ -2,7 +2,7 @@
   "mcpServers": {
     "hub-cto-hub": {
       "type": "http",
-      "url": "https://apps.pebblesilversites.com/mcp/CTO-HUB",
+      "url": "https://<hub-host>/mcp/<hub-name>",
       "headers": {
         "Authorization": "Bearer <placed by Matt, never committed>",
         "User-Agent": "SignalboxCodingAgent/1.0"

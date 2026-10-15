@@ -21,6 +21,7 @@ route is set, locked and clear. This repo is the public face of that system for 
 - `.github/workflows/` holds one reusable workflow per pipeline step, named for the step number it
   triggers on. Step numbers are frozen and never reused.
 - `skills/` holds public skills for coding agents, each with an owner and a version in its frontmatter.
+  Every skill is owned by Matt and changes only in an attended session with him.
 - `tools/secret-scan/` is the installer, hook and generic base config behind COMPUTER-SETUP.md.
 - `tools/New-SkillJunction.ps1` is the script behind REPO-SETUP.md.
 - `docs/` holds the public contract for each workflow: inputs, secrets and what it reports.
