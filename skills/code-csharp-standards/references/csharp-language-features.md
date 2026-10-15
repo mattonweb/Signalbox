@@ -140,7 +140,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 |---|---|---|---|
 | `params` collections | `params ReadOnlySpan<T>`, `params IEnumerable<T>`, not only arrays | 0 | Allowed (ruled 2026-10-15): a signature detail on the author's side; callers see no difference |
 | `System.Threading.Lock` | A dedicated lock type; `lock (lockObject)` uses `EnterScope` | 1 / 1 | Allowed (ruled 2026-10-15): new lock fields are `Lock`, never `object`; the 37 existing `lock (object)` sites are by-product |
-| `\e` escape sequence | Character literal for ESC (U+001B) | 0 | Allowed (ruled 2026-10-15): names the character instead of `` |
+| `\e` escape sequence | Character literal for ESC (U+001B) | 0 | Allowed (ruled 2026-10-15): names the character instead of `\u001b` |
 | Implicit index access in object initialisers | `= { [^1] = x }` | n/m | Not allowed (ruled 2026-10-15): unreachable, from-end indices are not allowed |
 | `ref` locals and `unsafe` in iterators and async methods | Previously disallowed | n/m | Not allowed (ruled 2026-10-15): behind the `unsafe` and `ref` rulings |
 | `ref struct` types implement interfaces | `ref struct S : IFoo` | 0 | Not allowed (ruled 2026-10-15): `Span<T>`-internals territory |
