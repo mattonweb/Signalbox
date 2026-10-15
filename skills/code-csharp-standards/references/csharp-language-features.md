@@ -99,7 +99,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Constant interpolated strings | `const string s = $"{A}{B}";` | 0 | Allowed (ruled 2026-10-15): replaces concatenation in constant declarations |
 | `sealed` on record `ToString` override | Stops derived records regenerating it | 0 | Not allowed (ruled 2026-10-15): unreachable, records are sealed |
 | Mixed declaration and assignment in deconstruction | `(x, int y) = tuple;` | n/m | Not allowed (ruled 2026-10-15): hides which names are new; declare first, then deconstruct |
-| `CallerArgumentExpression` | Captures an argument's source text | 1 / 1 | Pending |
+| `CallerArgumentExpression` | Captures an argument's source text | 1 / 1 | Restricted (ruled 2026-10-15): written only when authoring a house guard helper the base class library lacks, with the reason stated. `ArgumentNullException.ThrowIfNull` and the other library helpers that carry it stay required (SKILL.md 4.5) |
 | `AsyncMethodBuilder` on methods | Custom async builders | n/m | Not allowed (ruled 2026-10-15): runtime-internals territory |
 
 ## C# 11 (November 2022, .NET 7)
