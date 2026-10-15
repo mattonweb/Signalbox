@@ -153,14 +153,14 @@ audit; a row marked *n/m* was not measurable by pattern.
 
 | Feature | What it is | House use | Disposition |
 |---|---|---|---|
-| Extension members | `extension(Type t) { ... }` blocks: extension properties, static members, operators | 0 | Pending |
-| Null-conditional assignment | `a?.B = value;` | 0 | Pending |
-| `nameof` on unbound generics | `nameof(List<>)` | 0 | Pending |
-| Implicit `Span<T>` / `ReadOnlySpan<T>` conversions | More conversions apply without casts | automatic | Pending |
-| Modifiers on simple lambda parameters | `(ref x) => ...` without a type | 0 | Pending |
-| `field`-backed properties | The `field` keyword names the compiler-generated backing field in an accessor | 0 | Pending |
-| `partial` events and constructors | More members can split across partial declarations | 0 | Pending |
-| User-defined compound assignment operators | `operator +=` and friends | 0 | Pending |
+| Extension members | `extension(Type t) { ... }` blocks: extension properties, static members, operators | 0 | Not allowed until the StyleCop upgrade, then revisit (ruled 2026-10-15): syntax the pinned analyzer has never seen. Classic extension methods (C# 3) are unchanged |
+| Null-conditional assignment | `a?.B = value;` | 0 | Not allowed (ruled 2026-10-15): the same hidden branch as `??=`; write the `if` |
+| `nameof` on unbound generics | `nameof(List<>)` | 0 | Allowed (ruled 2026-10-15): removes a workaround |
+| Implicit `Span<T>` / `ReadOnlySpan<T>` conversions | More conversions apply without casts | automatic | Allowed (ruled 2026-10-15): compiler leniency, no syntax |
+| Modifiers on simple lambda parameters | `(ref x) => ...` without a type | 0 | Not allowed (ruled 2026-10-15): write the type, `(ref int x) => ...` |
+| `field`-backed properties | The `field` keyword names the compiler-generated backing field in an accessor | 0 | Not allowed (ruled 2026-10-15): declare the `_camelCase` field; the pinned StyleCop does not know the keyword |
+| `partial` events and constructors | More members can split across partial declarations | 0 | Restricted (ruled 2026-10-15): same terms as the other partial members, a named source generator requires it |
+| User-defined compound assignment operators | `operator +=` and friends | 0 | Not allowed (ruled 2026-10-15): exists to mutate in place, which the immutable house wrappers forbid |
 
 ---
 
