@@ -138,15 +138,15 @@ audit; a row marked *n/m* was not measurable by pattern.
 
 | Feature | What it is | House use | Disposition |
 |---|---|---|---|
-| `params` collections | `params ReadOnlySpan<T>`, `params IEnumerable<T>`, not only arrays | 0 | Pending |
-| `System.Threading.Lock` | A dedicated lock type; `lock (lockObject)` uses `EnterScope` | 1 / 1 | Pending |
-| `\e` escape sequence | Character literal for ESC (U+001B) | 0 | Pending |
-| Implicit index access in object initialisers | `= { [^1] = x }` | n/m | Pending |
-| `ref` locals and `unsafe` in iterators and async methods | Previously disallowed | n/m | Pending |
-| `ref struct` types implement interfaces | `ref struct S : IFoo` | 0 | Pending |
-| `allows ref struct` generic anti-constraint | Type parameters that accept `ref struct` | 0 | Pending |
-| Partial properties and indexers | `partial int X { get; set; }` in partial types | 0 | Pending |
-| `OverloadResolutionPriority` | Library authors rank overloads | 0 | Pending |
+| `params` collections | `params ReadOnlySpan<T>`, `params IEnumerable<T>`, not only arrays | 0 | Allowed (ruled 2026-10-15): a signature detail on the author's side; callers see no difference |
+| `System.Threading.Lock` | A dedicated lock type; `lock (lockObject)` uses `EnterScope` | 1 / 1 | Allowed (ruled 2026-10-15): new lock fields are `Lock`, never `object`; the 37 existing `lock (object)` sites are by-product |
+| `\e` escape sequence | Character literal for ESC (U+001B) | 0 | Allowed (ruled 2026-10-15): names the character instead of `` |
+| Implicit index access in object initialisers | `= { [^1] = x }` | n/m | Not allowed (ruled 2026-10-15): unreachable, from-end indices are not allowed |
+| `ref` locals and `unsafe` in iterators and async methods | Previously disallowed | n/m | Not allowed (ruled 2026-10-15): behind the `unsafe` and `ref` rulings |
+| `ref struct` types implement interfaces | `ref struct S : IFoo` | 0 | Not allowed (ruled 2026-10-15): `Span<T>`-internals territory |
+| `allows ref struct` generic anti-constraint | Type parameters that accept `ref struct` | 0 | Not allowed (ruled 2026-10-15): `Span<T>`-internals territory |
+| Partial properties and indexers | `partial int X { get; set; }` in partial types | 0 | Restricted (ruled 2026-10-15): only where a named source generator requires it, same terms as partial-method enhancements |
+| `OverloadResolutionPriority` | Library authors rank overloads | 0 | Not allowed to author (ruled 2026-10-15): for public library surfaces with overload ambiguities the house does not have |
 | Method group overload optimisations | Compiler behaviour | automatic | Allowed (no syntax) |
 
 ## C# 14 (November 2025, .NET 10)
