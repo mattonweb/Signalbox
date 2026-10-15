@@ -107,7 +107,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Feature | What it is | House use | Disposition |
 |---|---|---|---|
 | Required members | `required` on a property or field; compiler enforces initialisation | 1,437 / 354 | Allowed (SKILL.md section 5). Written `required public` while StyleCop is 1.1.118 (section 1) |
-| Raw string literals | `"""..."""`, no escaping, multi-line | 132 / 24 | Pending |
+| Raw string literals | `"""..."""`, no escaping, multi-line | 132 / 24 | Allowed (ruled 2026-10-15): for text that belongs in the code, templates and test fixtures; SQL stays in `.txt` resource files as today |
 | Generic math: static abstract and static virtual interface members | `static abstract T operator +(T, T)` | 0 | Pending |
 | Generic attributes | `[Attr<T>]` | 0 | Pending |
 | UTF-8 string literals | `"text"u8` | 2 / 1 | Pending |
