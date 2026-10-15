@@ -36,7 +36,14 @@ leaves it.
 ## 1. Toolchain facts the rules depend on
 
 - Every project targets `net10.0` with `<Nullable>enable</Nullable>`, `<GenerateDocumentationFile>true</GenerateDocumentationFile>`
-  and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`. `<ImplicitUsings>enable</ImplicitUsings>` is still present in
+  and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
+- **The language version is pinned: `<LangVersion>14</LangVersion>`** (Matt, 2026-10-15). The pin is the newest C# version
+  the language-features reference has ruled, so a feature from a later version fails the build until that version's rows are
+  added and ruled. The pin moves only with the rulings, never with the SDK. (When ruled, 10 projects said `latest` and 89
+  said nothing; pinning all 99 is by-product.)
+- **These project-wide settings belong in one `Directory.Build.props` at each repo root**, not in 99 project files (Matt,
+  2026-10-15): `LangVersion`, `Nullable`, `TreatWarningsAsErrors`, `GenerateDocumentationFile` and the analyzer package
+  references. Moving them there is a build order for the engineering lead to confirm against each repo's build. `<ImplicitUsings>enable</ImplicitUsings>` is still present in
   every project and **is to be removed** (Matt, 2026-10-07): a file states every namespace it uses, `using System;` included,
   and nothing arrives from a hidden list.
 - Analyzers in every project: `StyleCop.Analyzers` **1.1.118**, `SonarAnalyzer.CSharp`,

@@ -5,8 +5,8 @@
 2019.) Every version after 7.3 is listed below, feature by feature, each with a one-line description, how much the
 house code already uses it, and its disposition.
 
-**Why this document exists.** The projects target `net10.0` with `<LangVersion>` at its default, which is C# 14, so
-the compiler accepts everything on this page. Accepting is not adopting. A coding agent reads this page to learn which
+**Why this document exists.** The projects target `net10.0` and pin `<LangVersion>14</LangVersion>`, so the compiler
+accepts exactly the versions on this page and refuses anything newer. Accepting is not adopting. A coding agent reads this page to learn which
 features the house writes and which it does not, and a reviewer reads it to check a diff.
 
 **Status: every row is ruled.** Matt walked the list one feature at a time on 2026-10-07 and 2026-10-15. Counting the
@@ -178,5 +178,6 @@ audit; a row marked *n/m* was not measurable by pattern.
 A disposition changes only in an attended session with Matt, who owns this skill. When a `Pending` row becomes
 `Allowed`, it may gain a one-line house convention (where it is used, where it is not). When it becomes
 `Not allowed`, the house-use count on that row is the size of the by-product refactor, and the row keeps the count so
-the cost stays visible. A feature from a future C# version is added here as `Pending` the day the toolchain moves to
-it, not when someone first uses it.
+the cost stays visible. A future C# version is handled on the house's schedule, not the SDK's: `<LangVersion>` stays
+pinned at 14, so its features cannot compile until this document gains that version's rows, Matt rules them, and the pin
+moves in the same change (Matt, 2026-10-15). Nothing arrives by upgrade.
