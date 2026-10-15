@@ -2,7 +2,7 @@
 name: code-csharp-standards
 description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behaviour classes versus data types) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
 owner: Matt
-version: 1.0.0
+version: 1.1.0
 visibility: public
 ---
 
@@ -406,7 +406,9 @@ injected `TimeProvider`, 7 sites used `.Now`, and 315 read `UtcNow` directly, mo
 ## 12. Language features
 
 **The baseline is C# 7.3.** Every feature added since is listed, version by version, with its house usage and its
-disposition (`Allowed`, `Not allowed`, `Pending`) in [references/csharp-language-features.md](references/csharp-language-features.md).
+disposition (`Allowed`, `Restricted`, `Not allowed`) in [references/csharp-language-features.md](references/csharp-language-features.md).
+Every row was ruled by Matt on 2026-10-07 and 2026-10-15; nothing is pending. The rule of thumb the rulings follow:
+shorthand that hides a branch, a calculation or a declaration is out; syntax that makes structure visible is in.
 A `Pending` feature is not adopted: do not introduce it in new code until its row says `Allowed`. A `Restricted`
 feature is used only where the plain form would be worse, with a one-line reason in a comment above every use. The
 lists below are the summary; the reference is the rule.

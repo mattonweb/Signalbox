@@ -9,6 +9,15 @@ house code already uses it, and its disposition.
 the compiler accepts everything on this page. Accepting is not adopting. A coding agent reads this page to learn which
 features the house writes and which it does not, and a reviewer reads it to check a diff.
 
+**Status: every row is ruled.** Matt walked the list one feature at a time on 2026-10-07 and 2026-10-15. Counting the
+baseline-restrictions table: 30 Allowed, 8 Restricted, 45 Not allowed, 0 Pending. The pattern behind the rulings, stated
+so the next feature can be judged the same way: **shorthand that hides a branch, an arithmetic step or a declaration is
+declined** (using declarations, ranges, `??=`, null-conditional assignment, `field`); **features that make structure
+visible are kept** (switch expressions with every arm broken after the arrow, property patterns, records, `with`); **library
+and runtime internals are declined** (`ref` fields, inline arrays, function pointers, interceptors); **source-generator
+hooks are Restricted** to a named generator; and **syntax the pinned StyleCop 1.1.118 has never seen waits** for the
+analyzer upgrade (extension members, `field`).
+
 **Dispositions.** `Allowed`, `Restricted`, `Not allowed`, or `Pending`.
 
 - `Allowed`: use it where it fits; the row may carry a house convention.
