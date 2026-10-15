@@ -127,12 +127,12 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Primary constructors on classes and structs | `class Service(IDep dep) { }` | 26 / 25 | Not allowed (SKILL.md section 4.6: records only) |
 | Positional records | `record Point(int X, int Y);` | 8 / 5 | Allowed (SKILL.md section 4.6) |
 | Collection expressions | `int[] a = [1, 2, 3];`, spread `[..x, ..y]` | 170 / 103 | Allowed (SKILL.md section 12) |
-| Inline arrays | `[InlineArray(n)]` struct as a fixed buffer | 0 | Pending |
-| Optional parameters in lambdas | `(int x = 1) => ...` | 1 / 1 | Pending |
-| `ref readonly` parameters | Pass by reference, read-only, caller may pass a value | 0 | Pending |
-| Alias any type | `using Point = (int X, int Y);` | 0 | Pending |
-| `[Experimental]` attribute | Marks an API as experimental; use is a diagnostic | 0 | Pending |
-| Interceptors (preview) | Source-generator replacement of call sites | 0 | Pending (preview feature) |
+| Inline arrays | `[InlineArray(n)]` struct as a fixed buffer | 0 | Not allowed (ruled 2026-10-15): library-internals territory |
+| Optional parameters in lambdas | `(int x = 1) => ...` | 1 / 1 | Not allowed (ruled 2026-10-15): a lambda with defaults is a method; make it a private method |
+| `ref readonly` parameters | Pass by reference, read-only, caller may pass a value | 0 | Not allowed (ruled 2026-10-15): the house passes records and small values; revisit if a struct ever grows large enough to need it |
+| Alias any type | `using Point = (int X, int Y);` | 0 | Not allowed (ruled 2026-10-15): define the type; a tuple with a nickname is what wrap-all-primitives forbids |
+| `[Experimental]` attribute | Marks an API as experimental; use is a diagnostic | 0 | Not allowed to author (ruled 2026-10-15): no house API has an experimental tier |
+| Interceptors (preview) | Source-generator replacement of call sites | 0 | Not allowed (ruled 2026-10-15): invisible at the call site by design, and still preview |
 
 ## C# 13 (November 2024, .NET 9)
 
