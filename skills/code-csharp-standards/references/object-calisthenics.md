@@ -8,7 +8,7 @@ reasoning; the rules themselves live in `SKILL.md`, which is what a reviewer app
 
 **Precedent.** The Repository Starter Kit's `object-calisthenics.instructions.md` (Copilot, 2025) states the nine
 rules for "business domain code" with DTOs, API models and configuration classes exempt. It says: *"No additional
-rules must be added, and none of these rules should be replaced or removed."* That is honoured here in the sense
+rules must be added, and none of these rules should be replaced or removed."* That is honored here in the sense
 that matters: all nine are listed, none is renamed, and where the house narrows one the narrowing is stated as a
 disposition under the original rule, not as a new rule.
 
@@ -17,7 +17,7 @@ disposition under the original rule, not as a new rule.
 - **Data types are exempt**, and the test is shape, not folder or name: *a type with no method bodies beyond
   `ToString`, `Equals` and `GetHashCode` is data.* Entities, DTOs, POCOs, options types and row classes.
 - **Injected dependencies are exempt** from the counting rules. The starter kit exempted the logger; the house
-  exempts every constructor-injected collaborator, because in this architecture a behaviour class's fields are its
+  exempts every constructor-injected collaborator, because in this architecture a behavior class's fields are its
   dependencies, not its state.
 
 ---
@@ -82,8 +82,8 @@ meaning and its validation (`Age` rather than `int`).
 **Disposition: adopted in full** (Matt, 2026-10-04: *"our house rules should be to 'Wrap all primitives'"*). The rule has
 two halves, and the session took them in order:
 
-- **Configuration half, adopted.** A behaviour class holds no primitive fields. Configuration arrives as one options
-  type. Measured: 34 primitive fields across the 983 behaviour classes, 21 of them on one orchestrator, and 91
+- **Configuration half, adopted.** A behavior class holds no primitive fields. Configuration arrives as one options
+  type. Measured: 34 primitive fields across the 983 behavior classes, 21 of them on one orchestrator, and 91
   options and settings types already exist. This half is cheap and already house practice.
 - **Domain half, adopted.** Typed identifiers and value objects on entities and method signatures (`PlaceId`,
   `CountyFips`, `PostalCode`, `Coordinate`): a `readonly record struct` over the primitive, validating in its
@@ -97,9 +97,9 @@ Matt's expectation, recorded: applying this rule together with rule 8 will creat
 ## 4. First-class collections
 
 **Original.** A class that contains a collection contains no other member. The collection gets its own type, and the
-behaviour over it lives there.
+behavior over it lives there.
 
-**Disposition: adopted as written.** A behaviour class does not expose a raw `List<T>` of domain items; it holds a
+**Disposition: adopted as written.** A behavior class does not expose a raw `List<T>` of domain items; it holds a
 type that wraps the collection and answers the questions callers ask of it (the starter kit's
 `GroupUserCollection.GetActiveUsers()` example).
 
@@ -150,7 +150,7 @@ lines, 92 files over 500, 16 over 1,000, the largest 2,476. **Named exceptions l
 do not count the logger.
 
 **Disposition: adopted for a class's own state, with injected dependencies exempt and no ceiling on them.**
-Measured: 1,095 instance members across the 983 behaviour classes, of which 943 are injected interfaces and
+Measured: 1,095 instance members across the 983 behavior classes, of which 943 are injected interfaces and
 service classes, 38 options objects, 34 primitives; 862 classes already hold two or fewer members. Counting
 dependencies would have produced 121 violations that were all false alarms, including the recurring five-dependency
 house shape (logger, database factory, activity service, source service, mapper). Matt declined a dependency ceiling
@@ -163,24 +163,24 @@ remaining state is the class's responsibility made visible.
 
 ## 9. No getters, setters or properties
 
-**Original.** "Tell, don't ask." An object does not expose its state for others to make decisions on; the behaviour
+**Original.** "Tell, don't ask." An object does not expose its state for others to make decisions on; the behavior
 that uses the data lives with the data. The starter kit adds: use private constructors and static factory methods
 for domain classes; DTOs are exempt.
 
-**Disposition: adopted as two rules, for behaviour classes only.**
+**Disposition: adopted as two rules, for behavior classes only.**
 
 1. Orchestrators, services and repositories hold no public state; dependencies are private readonly.
 2. A state transition with a rule lives in exactly one named service method; callers never branch on an entity's
    state and then assign it inline.
 
 Why two rules and not the original: in this architecture entities are data by design (0 of 287 entity files carry a
-method body) and behaviour lives in services, so the original rule's home, the rich domain object, does not exist
+method body) and behavior lives in services, so the original rule's home, the rich domain object, does not exist
 here. The invariant the rule protects, that a transition is checked in one place, is kept by putting that place in
-a named service method. Measured: 0 public getters or setters on behaviour classes, and about two ask-then-set
+a named service method. Measured: 0 public getters or setters on behavior classes, and about two ask-then-set
 sites, so both rules are nearly free today. The starter kit's private-constructor-and-factory guidance applies to
-domain classes with behaviour and is therefore not a house rule.
+domain classes with behavior and is therefore not a house rule.
 
-**Placement, which the original rule never needed:** because the rule depends on telling data from behaviour, data
+**Placement, which the original rule never needed:** because the rule depends on telling data from behavior, data
 types live under `Entities/` (public) or `DTOs/` (private), never under `Services/`, `Repositories/` or
 `Orchestrators/`. The 80 files that hold row classes beside a repository, and the request and result types filed
 under `Services/`, move; that is by-product, and one type per file is the open decision that would finish it.

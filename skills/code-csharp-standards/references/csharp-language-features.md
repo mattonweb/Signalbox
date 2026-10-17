@@ -63,7 +63,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Using declarations | `using var x = ...;` without a block | 469 / 226 | Not allowed (ruled 2026-10-07): the block form with braces is the house way, the indentation shows the resource's scope; `using`, `try` and `lock` blocks do not count toward the one-level rule (SKILL.md 6.1) |
 | Static local functions | `static int Helper(...)` inside a method, no captures | 2 / 2 | Not allowed (ruled 2026-10-07): local functions of any kind are private methods (baseline table); the compiler emits the same code, and a private method is named, documented and visible in the class's shape |
 | Readonly instance members | `readonly` on a struct member that does not mutate | 15 / 14 | Not allowed (ruled 2026-10-07): unreachable under the immutability rule (SKILL.md 4.4) and `readonly record struct` as the house wrapper; a struct never has mutable state for a member to promise not to touch |
-| Default interface members | Method bodies in an interface | n/m | Not allowed (ruled 2026-10-07): an interface declares, a base class or service implements; a body in an interface is behaviour with no place in the taxonomy (SKILL.md 3), and the versioning case it exists for does not arise when every implementer is in a house repo |
+| Default interface members | Method bodies in an interface | n/m | Not allowed (ruled 2026-10-07): an interface declares, a base class or service implements; a body in an interface is behavior with no place in the taxonomy (SKILL.md 3), and the versioning case it exists for does not arise when every implementer is in a house repo |
 | Asynchronous streams | `IAsyncEnumerable<T>` and `await foreach` | 11 / 6 | Restricted (ruled 2026-10-07): only where the sequence is unbounded, too large to buffer, or produced by another task over time, with the reason stated at the producer; a method that could return a list returns a list. Producer takes `[EnumeratorCancellation] CancellationToken` last |
 | Indices and ranges | `^1`, `a[1..^1]` | 144 / 89 | Not allowed (ruled 2026-10-07): `Substring`, `Length - n`, `list[list.Count - 1]`, `Path.GetFileName(uri.LocalPath)` for a last URL segment; the January standards' `uri.Segments[^1]` is superseded. 144 lines by-product |
 | Null-coalescing assignment | `x ??= value` | 30 / 17 | Not allowed (ruled 2026-10-07): written out as `if (x == null) { x = value; }`; shorthand that hides a branch. 30 lines by-product |
@@ -84,7 +84,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Static anonymous functions | `static x => ...` lambdas with no captures | 55 / 18 | Allowed (SKILL.md section 12) |
 | Target-typed conditional | `cond ? a : b` where branches convert to the target type | n/m | Allowed (ruled 2026-10-07): compiler leniency on an expression the house already writes; it only removes a cast |
 | Covariant return types | An override returns a more derived type | n/m | Allowed (ruled 2026-10-07): removes a cast that was always safe; reachable only in the Roadbed base-class hierarchies since classes are sealed by default |
-| Extension `GetEnumerator` in `foreach` | An extension method makes a type enumerable | n/m | Not allowed (ruled 2026-10-07): a type that should be enumerable implements `IEnumerable<T>` itself or is wrapped in a collection type (SKILL.md 6.5); enumeration bolted on from outside hides where behaviour lives |
+| Extension `GetEnumerator` in `foreach` | An extension method makes a type enumerable | n/m | Not allowed (ruled 2026-10-07): a type that should be enumerable implements `IEnumerable<T>` itself or is wrapped in a collection type (SKILL.md 6.5); enumeration bolted on from outside hides where behavior lives |
 | Lambda discard parameters | `(_, _) => ...` | 1 / 1 | Allowed (ruled 2026-10-07): says "unused" explicitly |
 | Attributes on local functions | `[Attr] void Local() { }` | n/m | Not allowed (ruled 2026-10-07): unreachable, local functions are not allowed |
 | Native-sized integers | `nint`, `nuint` | 0 | Not allowed (ruled 2026-10-07): interop territory, behind the `unsafe` boundary rule |
@@ -115,7 +115,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 
 | Feature | What it is | House use | Disposition |
 |---|---|---|---|
-| Required members | `required` on a property or field; compiler enforces initialisation | 1,437 / 354 | Allowed (SKILL.md section 5). Written `required public` while StyleCop is 1.1.118 (section 1) |
+| Required members | `required` on a property or field; compiler enforces initialization | 1,437 / 354 | Allowed (SKILL.md section 5). Written `required public` while StyleCop is 1.1.118 (section 1) |
 | Raw string literals | `"""..."""`, no escaping, multi-line | 132 / 24 | Allowed (ruled 2026-10-15): for text that belongs in the code, templates and test fixtures; SQL stays in `.txt` resource files as today |
 | Generic math: static abstract and static virtual interface members | `static abstract T operator +(T, T)` | 0 | Not allowed (ruled 2026-10-15): numeric-library territory; consuming `INumber<T>` from the base library is using the library |
 | Generic attributes | `[Attr<T>]` | 0 | Allowed (ruled 2026-10-15): type-safe where `typeof(T)` took any type |
@@ -127,7 +127,7 @@ audit; a row marked *n/m* was not measurable by pattern.
 | Pattern match `Span<char>` on a constant string | `span is "text"` | n/m | Allowed (ruled 2026-10-15): compiler leniency, no syntax |
 | Extended `nameof` scope | `nameof(parameter)` in parameter attributes | n/m | Allowed (ruled 2026-10-15): what `[CallerArgumentExpression(nameof(argument))]` relies on |
 | `ref` fields and `scoped ref` | `ref` fields in `ref struct`; lifetime annotations | 4 / 2 | Not allowed (ruled 2026-10-15): `Span<T>`-internals territory; 4 sites by-product |
-| Improved method group conversion | Compiler caches delegates for method groups | automatic | Allowed (no syntax; compiler behaviour) |
+| Improved method group conversion | Compiler caches delegates for method groups | automatic | Allowed (no syntax; compiler behavior) |
 
 ## C# 12 (November 2023, .NET 8)
 
@@ -150,13 +150,13 @@ audit; a row marked *n/m* was not measurable by pattern.
 | `params` collections | `params ReadOnlySpan<T>`, `params IEnumerable<T>`, not only arrays | 0 | Allowed (ruled 2026-10-15): a signature detail on the author's side; callers see no difference |
 | `System.Threading.Lock` | A dedicated lock type; `lock (lockObject)` uses `EnterScope` | 1 / 1 | Allowed (ruled 2026-10-15): new lock fields are `Lock`, never `object`; the 37 existing `lock (object)` sites are by-product |
 | `\e` escape sequence | Character literal for ESC (U+001B) | 0 | Allowed (ruled 2026-10-15): names the character instead of `\u001b` |
-| Implicit index access in object initialisers | `= { [^1] = x }` | n/m | Not allowed (ruled 2026-10-15): unreachable, from-end indices are not allowed |
+| Implicit index access in object initializers | `= { [^1] = x }` | n/m | Not allowed (ruled 2026-10-15): unreachable, from-end indices are not allowed |
 | `ref` locals and `unsafe` in iterators and async methods | Previously disallowed | n/m | Not allowed (ruled 2026-10-15): behind the `unsafe` and `ref` rulings |
 | `ref struct` types implement interfaces | `ref struct S : IFoo` | 0 | Not allowed (ruled 2026-10-15): `Span<T>`-internals territory |
 | `allows ref struct` generic anti-constraint | Type parameters that accept `ref struct` | 0 | Not allowed (ruled 2026-10-15): `Span<T>`-internals territory |
 | Partial properties and indexers | `partial int X { get; set; }` in partial types | 0 | Restricted (ruled 2026-10-15): only where a named source generator requires it, same terms as partial-method enhancements |
 | `OverloadResolutionPriority` | Library authors rank overloads | 0 | Not allowed to author (ruled 2026-10-15): for public library surfaces with overload ambiguities the house does not have |
-| Method group overload optimisations | Compiler behaviour | automatic | Allowed (no syntax) |
+| Method group overload optimizations | Compiler behavior | automatic | Allowed (no syntax) |
 
 ## C# 14 (November 2025, .NET 10)
 

@@ -1,8 +1,8 @@
 ---
 name: code-csharp-standards
-description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behaviour classes versus data types) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
+description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behavior classes versus data types) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
 owner: Matt
-version: 1.1.0
+version: 1.1.1
 visibility: public
 ---
 
@@ -98,7 +98,7 @@ internal sealed class CatalogPricePromoter : BaseClassWithLogging
 - **No file header banner** (SA1633 disabled). XML documentation on every public and internal member
   (`GenerateDocumentationFile` makes a missing summary an error).
 - **One type per file** (Matt, 2026-10-04; the starter kit already said it). A row class beside its repository moves
-  to its own file under `DTOs/` (section 3). (When ruled, 80 files in behaviour folders declared more than one type;
+  to its own file under `DTOs/` (section 3). (When ruled, 80 files in behavior folders declared more than one type;
   by-product.)
 
 ---
@@ -108,7 +108,7 @@ internal sealed class CatalogPricePromoter : BaseClassWithLogging
 Every type is one of two kinds, and **the test is shape, not folder or name**:
 
 > A type with no method bodies beyond `ToString`, `Equals` and `GetHashCode` is **data**.
-> A type with any other method body is a **behaviour class**.
+> A type with any other method body is a **behavior class**.
 
 **Data types** are entities, DTOs and POCOs: records, Dapper-bound entities, request and response shapes, options
 and settings types, row classes. They live:
@@ -116,21 +116,21 @@ and settings types, row classes. They live:
 - under `Entities/` when `public`;
 - under `DTOs/` when `internal` or `private`;
 - **never under `Services/`, `Repositories/` or `Orchestrators/`.** A request or result type filed beside the
-  service that uses it is misfiled. (On 2026-10-04 three request and result types and 30 options types sat in behaviour folders; moving them is
+  service that uses it is misfiled. (On 2026-10-04 three request and result types and 30 options types sat in behavior folders; moving them is
   by-product.)
 
-**Behaviour classes** are orchestrators, services, repositories, jobs, loaders, composers, handlers: anything with a
+**Behavior classes** are orchestrators, services, repositories, jobs, loaders, composers, handlers: anything with a
 method body. Sections 4 and 6 apply to them and not to data.
 
 ---
 
-## 4. Behaviour classes
+## 4. Behavior classes
 
 ### 4.1 No public state
 
 An orchestrator, service or repository exposes no public getter or setter. Its dependencies are `private readonly`
 fields, or `private` and `protected` get-only properties over them in the Roadbed base-class pattern. On
-2026-10-04 zero of the 983 behaviour classes violated this; the rule keeps it so.
+2026-10-04 zero of the 983 behavior classes violated this; the rule keeps it so.
 
 ### 4.2 A state transition with a rule lives in exactly one named method
 
@@ -153,7 +153,7 @@ method named for the transition.
 
 ### 4.3 Own state: at most two members, never a primitive; injected dependencies do not count
 
-A behaviour class's own state, meaning anything that is not an injected dependency, is at most two members, and
+A behavior class's own state, meaning anything that is not an injected dependency, is at most two members, and
 none of them is a primitive (`string`, `int`, `long`, `bool`, `TimeSpan`, `Uri`, and the like). Configuration
 arrives as **one options type**, placed by section 3.
 
@@ -197,7 +197,7 @@ for disposal checks (CA1513).
 
 ### 4.6 Primary constructors
 
-**Primary constructors on records only** (Matt, 2026-10-04). A behaviour class uses an explicit constructor with
+**Primary constructors on records only** (Matt, 2026-10-04). A behavior class uses an explicit constructor with
 validation: a primary constructor cannot validate its parameters on entry without a workaround and does not produce
 the `private readonly` field the `this._field` pattern needs. The `.editorconfig` says
 `csharp_style_prefer_primary_constructors = false` for this reason. (When ruled, 30 existed across three repos, 25 on
@@ -219,9 +219,9 @@ mapper, never in a repository method body. (When ruled, 86 files in two repos ca
   members and `init` setters (or `set` only where the mapper, Dapper for instance, requires it).
 - Collections on DTOs are **arrays**, not `IList<T>`: they signal immutability, match JSON array semantics and
   perform better. (Roadbed standards, carried.)
-- A data type carries **no behaviour**. If it needs a method with a body it has become a behaviour class and
+- A data type carries **no behavior**. If it needs a method with a body it has become a behavior class and
   section 4 applies; usually the method belongs on a service.
-- **JSON serialisation: `System.Text.Json` is the house library**, with `[JsonPropertyName]` on DTO members (Matt,
+- **JSON serialization: `System.Text.Json` is the house library**, with `[JsonPropertyName]` on DTO members (Matt,
   2026-10-04: *"We are purposely moving to System.Text.Json"*). The January standards' *"Always use Newtonsoft.Json"*
   is superseded. New code never references Newtonsoft; the 21 files that still do, all in one repo, are migration debt.
 - **Wrap all primitives** (Matt, 2026-10-04: *"our house rules should be to 'Wrap all primitives'"*). A domain concept
@@ -327,7 +327,7 @@ A `switch` statement remains the right tool when an arm must run statements rath
 
 ### 6.5 First-class collections
 
-A class that holds a collection holds nothing else but that collection and the behaviour over it. A behaviour
+A class that holds a collection holds nothing else but that collection and the behavior over it. A behavior
 class does not expose a raw `List<T>` of domain items; it holds a type that wraps the collection and answers the
 questions callers ask of it.
 
@@ -403,10 +403,10 @@ A class that inherits `BaseClassWithLogging` (every `BaseSchedulingJob<T>` does)
 
 ## 11. Time
 
-Behaviour classes read the clock through an injected `TimeProvider` (Matt, 2026-10-04). `DateTime.Now` and
+Behavior classes read the clock through an injected `TimeProvider` (Matt, 2026-10-04). `DateTime.Now` and
 `DateTimeOffset.Now` are never used. `DateTime.UtcNow` and `DateTimeOffset.UtcNow` are allowed only in data types
 and static helpers that cannot take a dependency. Tests supply a `FakeTimeProvider`. (When ruled, 38 files already
-injected `TimeProvider`, 7 sites used `.Now`, and 315 read `UtcNow` directly, mostly in behaviour classes; by-product.)
+injected `TimeProvider`, 7 sites used `.Now`, and 315 read `UtcNow` directly, mostly in behavior classes; by-product.)
 
 ---
 
@@ -437,7 +437,7 @@ Not used:
 - Null-coalescing assignment (`x ??= value`); the `if` is written out (Matt, 2026-10-07). 30 lines by-product.
 - Global using directives; each file lists its own usings, `using System;` included (Matt, 2026-10-07).
 - Top-level statements; `Program.cs` holds a documented `Program` class with a documented `Main` (Matt, 2026-10-07).
-- `stackalloc` inside an expression; only as a variable initialiser (Matt, 2026-10-07).
+- `stackalloc` inside an expression; only as a variable initializer (Matt, 2026-10-07).
 - `@$"..."`; a verbatim interpolated string is always spelled `$@"..."` (Matt, 2026-10-07).
 - Indices and ranges (`^1`, `a[1..]`); `Substring`, explicit lengths and `Count - 1` instead (Matt, 2026-10-07). 144 lines
   by-product; the January standards' `uri.Segments[^1]` becomes `Path.GetFileName(uri.LocalPath)`.
@@ -486,8 +486,8 @@ to a build error in one repo.
 3. **NEVER** write `public required`; it is `required public` under StyleCop 1.1.118.
 4. **NEVER** put a public setter, or any public getter, on an orchestrator, service or repository.
 5. **NEVER** branch on an entity's state and assign the entity inline in a caller; name the transition.
-6. **NEVER** hold a primitive as a behaviour class's own state; use one options type.
-7. **NEVER** declare a non-readonly instance field on a behaviour class.
+6. **NEVER** hold a primitive as a behavior class's own state; use one options type.
+7. **NEVER** declare a non-readonly instance field on a behavior class.
 8. **NEVER** chain more than two dots outside LINQ and `ConfigureAwait`; StringBuilder goes one call per statement.
 9. **NEVER** put a switch-expression arm's value on the same line as its `=>`; every arm breaks after the arrow.
 10. **NEVER** nest more than one level of logic inside a method body; `using`, `try` and `lock` blocks do not count.
@@ -519,10 +519,10 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] `this.` on every instance member access
 - [ ] `required` precedes the access modifier
 - [ ] New classes are `sealed` unless designed for inheritance
-- [ ] Every new type is classified, data or behaviour, by the shape test, and filed accordingly
+- [ ] Every new type is classified, data or behavior, by the shape test, and filed accordingly
 - [ ] No data type under `Services/`, `Repositories/` or `Orchestrators/`
-- [ ] Behaviour class exposes no public getter or setter
-- [ ] Behaviour class's own state is at most two non-primitive members; configuration is one options type
+- [ ] Behavior class exposes no public getter or setter
+- [ ] Behavior class's own state is at most two non-primitive members; configuration is one options type
 - [ ] Every instance field is `readonly`; properties are get-only or `init`
 - [ ] Every constructor parameter is validated with a throw helper; `nameof` wherever a parameter is named
 - [ ] No method body nests more than one level of logic (`using`, `try` and `lock` blocks do not count)
