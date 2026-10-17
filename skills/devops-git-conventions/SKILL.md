@@ -2,7 +2,7 @@
 name: devops-git-conventions
 description: Git conventions for every repository that adopts this skill. Use whenever creating a branch, writing or reviewing a commit message, drafting a commit message for someone else to commit, opening or reviewing a pull request, or tagging a release. Covers the trunk-based workflow, branch naming, Conventional Commits with the type table and the 72-character subject rule, the verification line every commit body carries, pull-request title and description, merge by merge commit, and the tag and version format. A pipeline tags every merge and builds once from the tag; this skill states the half a person has to get right before the pipeline sees it.
 owner: Matt
-version: 1.0.0
+version: 1.0.1
 visibility: public
 ---
 
@@ -11,12 +11,6 @@ visibility: public
 These are the house rules for git in every repository that adopts this skill. Each is written so a reviewer
 can answer yes or no to it on a branch, a commit or a pull request. Where the pipeline enforces a rule, this
 document names the step; where nothing enforces it, this document is the rule.
-
-**Grounding.** The workflow in section 1 is the one a build-once, promote-by-digest pipeline assumes: a
-trunk, feature branches, a pull request per branch, a tag on every merge, one artifact built once from the
-tag. This skill names the conventions such a pipeline leaves to the people and agents working in the
-repositories. Where history disagrees with a rule here, the rule wins and history is left alone: nothing is
-rewritten.
 
 **Who it binds.** Everyone who writes to a repository that adopts it, person or agent. It says nothing about
 who may commit or push; that is each repository's working agreement.
@@ -165,22 +159,3 @@ A reviewer answers each of these on the thing in front of them.
 - [ ] Created by the pipeline, not by hand.
 - [ ] `YYYY.MMdd.N`, month and day zero-padded, no `v` prefix; `+hotfix` exactly when the merged branch was
       a `hotfix/` branch, never a `-` suffix.
-
-## Decisions record
-
-| Date | Decision | Ruled by |
-|---|---|---|
-| 2026-10-15 | Conventional Commits adopted for every commit, hand-written ones included. | maintainer |
-| 2026-10-15 | `content` added as the twelfth type; nothing else is a type. | maintainer |
-| 2026-10-15 | Scopes are per repository, listed in that repository's working agreement, never here. One scope per commit. | maintainer |
-| 2026-10-15 | 72-character first line, hard. Reasoning and provenance move to the body. | maintainer |
-| 2026-10-15 | The body's last paragraph is the verification line. | maintainer |
-| 2026-10-15 | Trunk-based; only `feature/` and `hotfix/` beyond `main`. | maintainer |
-| 2026-10-16 | No size ceiling on a commit or a pull request. One topic is the rule; a large refactor is one topic. | maintainer |
-| 2026-10-16 | Commits are not required to be signed. Review is the gate, not the signature; revisit if a host or a consumer asks for verified commits. | maintainer |
-| 2026-10-16 | Two rules are hook-enforced: the secret scan (machine-wide, documented in COMPUTER-SETUP.md) and the commit-message first line (`references/commit-msg-hook.sh`); hooks refuse or pass and never rewrite staged content. | maintainer |
-| 2026-10-16 | Release branches exist as an option, named after the full version they keep patchable (`release/2026.1016.4`), hotfix-only, deleted when unsupported. | maintainer |
-| 2026-10-16 | Version `YYYY.MMdd.N[+hotfix]`, named SortVer (sortable versioning; no existing scheme of that name found 2026-10-16), a calendar and semantic hybrid chosen to sort as text in time order. Accepted with it: a parser may drop the month's leading zero and that is the same version; `+hotfix` as build metadata, never `-hotfix`, which would be a pre-release; the build sequence is not padded. | maintainer |
-| 2026-10-15 | Pull requests merge by merge commit. | maintainer |
-| 2026-10-15 | No changelog file until a release process exists to feed one. | maintainer |
-| 2026-10-15 | The skill binds everyone who writes to an adopting repository and says nothing about who may commit. | maintainer |

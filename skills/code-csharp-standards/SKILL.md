@@ -2,7 +2,7 @@
 name: code-csharp-standards
 description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behavior classes versus data types) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
 owner: Matt
-version: 1.1.1
+version: 1.1.2
 visibility: public
 ---
 
@@ -12,24 +12,6 @@ These are the house rules for C# in every repository that adopts this skill. Eac
 answer yes or no to it on a diff, because the pipeline's standards reviewer uses this document as its rulebook.
 Where a tool can enforce a rule, the tool enforces it and this document names the tool. Where no tool can, this
 document is the rule.
-
-**Grounding.** This skill consolidates four earlier artifacts and supersedes them as the place these rules live:
-
-- Roadbed `docs/claude-project-instructions.md`, "C# Development Standards" (2026-01-20): the `this.` rule, the
-  readonly-field versus init-only split by class purpose, constructor validation, cancellation-token placement,
-  disposal, base-class logging. Carried, with the drift it suffered noted where the code moved on.
-- Repository Starter Kit `github/instructions/coding-style-csharp.instructions.md` (2025-09-30): no `var`,
-  file-scoped namespaces, sealed by default, one type per file, `nameof` in exceptions, no abbreviations. Carried;
-  its "usings outside the namespace" line is corrected here because StyleCop SA1200 rejects it.
-- Repository Starter Kit `github/instructions/object-calisthenics.instructions.md`: the nine original rules. Each
-  rule's house disposition is in [references/object-calisthenics.md](references/object-calisthenics.md).
-- Microsoft's C# version history (learn.microsoft.com, "The history of C#", 2025-11-18 revision): the feature list
-  behind [references/csharp-language-features.md](references/csharp-language-features.md).
-- A private product repo's "build landmines" note: the analyzer rules that fail a build during ordinary coding.
-  Carried as section 13; the note itself is not public.
-
-**This skill is Matt's.** It changes only in an attended session with him. An agent that finds it wrong says so and
-leaves it.
 
 ---
 
@@ -91,13 +73,13 @@ internal sealed class CatalogPricePromoter : BaseClassWithLogging
   The 13,600 existing declarations are refactor by-product, not precedent.
 - **Classes are `sealed` unless designed for inheritance.** A base class says so in its name or its summary.
 - **Naming.** Private fields `_camelCase`; parameters and locals `camelCase`; types, members and constants
-  `PascalCase`; interfaces start with `I`. (The starter kit's `ALL_CAPS` for constants is not used: StyleCop
+  `PascalCase`; interfaces start with `I`. (Not `ALL_CAPS` for constants: StyleCop
   SA1310 forbids the underscores.)
 - **Modifier order:** `required` first, then access, then `static`, then the rest (section 1).
 - **`#region` blocks are encouraged** for grouping members (SA1124 is disabled for this reason).
 - **No file header banner** (SA1633 disabled). XML documentation on every public and internal member
   (`GenerateDocumentationFile` makes a missing summary an error).
-- **One type per file** (Matt, 2026-10-04; the starter kit already said it). A row class beside its repository moves
+- **One type per file** (Matt, 2026-10-04). A row class beside its repository moves
   to its own file under `DTOs/` (section 3). (When ruled, 80 files in behavior folders declared more than one type;
   by-product.)
 
@@ -218,12 +200,11 @@ mapper, never in a repository method body. (When ruled, 86 files in two repos ca
 - A DTO or entity is a `record`, or a `sealed class` where a mapper needs one, with `required` on non-nullable
   members and `init` setters (or `set` only where the mapper, Dapper for instance, requires it).
 - Collections on DTOs are **arrays**, not `IList<T>`: they signal immutability, match JSON array semantics and
-  perform better. (Roadbed standards, carried.)
+  perform better.
 - A data type carries **no behavior**. If it needs a method with a body it has become a behavior class and
   section 4 applies; usually the method belongs on a service.
 - **JSON serialization: `System.Text.Json` is the house library**, with `[JsonPropertyName]` on DTO members (Matt,
-  2026-10-04: *"We are purposely moving to System.Text.Json"*). The January standards' *"Always use Newtonsoft.Json"*
-  is superseded. New code never references Newtonsoft; the 21 files that still do, all in one repo, are migration debt.
+  2026-10-04: *"We are purposely moving to System.Text.Json"*). New code never references Newtonsoft; the 21 files that still do, all in one repo, are migration debt.
 - **Wrap all primitives** (Matt, 2026-10-04: *"our house rules should be to 'Wrap all primitives'"*). A domain concept
   is never a bare `long`, `string` or `double` on an entity or in a method signature: a place id is a `PlaceId`, a
   county code a `CountyFips`, a position a `Coordinate`. The wrapper is a `readonly record struct` over the primitive,
@@ -340,13 +321,13 @@ Acronyms that are words in the domain (`Id`, `Url`, `Csv`, `Fips`, `Ats`, `Mcp`)
 ### 6.7 Async
 
 - `CancellationToken cancellationToken = default` is **always the last parameter**, after required and optional
-  parameters (Roadbed standards, carried; matches the base class library).
+  parameters (matches the base class library).
 - Every `await` carries `.ConfigureAwait(false)` (CA2007).
 - **Never `.Result` or `.Wait()`** on a task in production code (8 files on 2026-10-04, jobs and scheduling;
   by-product).
 - **Never `async void`** (0 today).
 - A method that awaits nothing returns the task directly rather than being marked `async`.
-- `HttpRequestMessage` can be sent once; create a new instance per retry attempt (Roadbed standards, carried).
+- `HttpRequestMessage` can be sent once; create a new instance per retry attempt.
 
 ---
 
@@ -387,8 +368,7 @@ exceeded 500 and 16 exceeded 1,000; the largest was 2,476.)
 
 A class that owns a managed resource (a `SemaphoreSlim`, for instance) is `sealed`, keeps a `_disposed` field,
 implements `Dispose()` idempotently, calls `ObjectDisposedException.ThrowIf(this._disposed, this)` at the top of
-every public member, and never adds a finalizer without an unmanaged resource. Consumers use `using`. (Roadbed
-standards, carried.)
+every public member, and never adds a finalizer without an unmanaged resource. Consumers use `using`.
 
 ---
 
@@ -397,7 +377,7 @@ standards, carried.)
 A class that inherits `BaseClassWithLogging` (every `BaseSchedulingJob<T>` does) logs through the base methods,
 `this.LogDebug(...)`, `this.LogInformation(...)`, `this.LogError(ex, ...)`, which check the level before formatting.
 `this.Logger.LogDebug(...)` on such a class formats the message even when debug is off. A class with an injected
-`ILogger<T>` and no base class calls the logger directly. (Roadbed standards, carried.)
+`ILogger<T>` and no base class calls the logger directly.
 
 ---
 
@@ -440,7 +420,7 @@ Not used:
 - `stackalloc` inside an expression; only as a variable initializer (Matt, 2026-10-07).
 - `@$"..."`; a verbatim interpolated string is always spelled `$@"..."` (Matt, 2026-10-07).
 - Indices and ranges (`^1`, `a[1..]`); `Substring`, explicit lengths and `Count - 1` instead (Matt, 2026-10-07). 144 lines
-  by-product; the January standards' `uri.Segments[^1]` becomes `Path.GetFileName(uri.LocalPath)`.
+  by-product; `uri.Segments[^1]` becomes `Path.GetFileName(uri.LocalPath)`.
 - Local functions of any kind, static or capturing; a private method on the class instead, with captured variables
   as parameters, so it is named and carries an XML summary (Matt, 2026-10-07). 10 existing sites are by-product.
 - Using declarations (`using var x = ...;`); the block form with braces is the house way (Matt, 2026-10-07: the
@@ -454,7 +434,7 @@ Not used:
 
 ## 13. Analyzer landmines
 
-Rules that fail the build during ordinary coding, with the fix (carried from a private landmines note):
+Rules that fail the build during ordinary coding, with the fix:
 
 | Rule | What trips it | Fix |
 |---|---|---|
@@ -544,11 +524,3 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] No bare primitive for a domain concept on an entity or in a signature; identifiers, codes and coordinates are wrapped
 - [ ] No `using Dapper;`; the database is reached through Roadbed's data abstractions
 - [ ] No `TODO`, `FIXME`, `XXX`, `HACK`; no commented-out code; no new suppression without a reason
-
----
-
-## Decisions record
-
-Every item in this skill was ruled by Matt in an attended session on 2026-10-04, including the six that were drafted as
-open questions: one type per file (2), primary constructors on records only (4.6), `System.Text.Json` (5), wrap all
-primitives (5), injected `TimeProvider` (11), LINQ method syntax only (12). Nothing in this skill is marked as pending.
