@@ -1,5 +1,11 @@
 # CLAUDE.md — Signalbox
 
+## Recent changes (attended edits to this file — read, then carry on)
+
+- **2026-10-17 (attended session with Matt):** the `devops-git-conventions` skill is now junctioned here and
+  listed in the skills section, and this file gains the commit-scope list that skill requires each repository
+  to hold. Nothing else changed.
+
 Orientation for Claude Code sessions in this repo. Signalbox is the **public** home of the S-numbered
 pipeline workflows that every product repo calls, and of the public skills, including
 the one that teaches other coding agents how to call those workflows. Each product repo carries a thin
@@ -62,6 +68,28 @@ Signalbox/
 ├── COMPUTER-SETUP.md     once per machine: the fail-closed secrets scan
 └── REPO-SETUP.md         once per repo: shared skills by junction point
 ```
+
+## Skills: reached by junction, owned by Matt
+
+`.claude/skills/` holds 1 Windows junction, never copies, each gitignored (`REPO-SETUP.md` in the Signalbox repo):
+
+| Skill | Home | What it governs |
+|---|---|---|
+| `devops-git-conventions` | `C:\Source\Signalbox\skills\` | Git: trunk-based `feature/` and `hotfix/` branches, Conventional Commits with the 72-character subject and the verification line in every body, pull requests, merge commits, SortVer tags. Binds every commit here, whoever makes it, and every commit message a hand-back proposes. It carries no scope list; this repo's is below |
+
+The skill's home is this repo's own `skills\` folder. Claude Code discovers a skill only under
+`.claude\skills\`, so the home repo needs the junction too (`REPO-SETUP.md`, *The home repo needs a
+junction too*). The bytes behind the junction are the ones a pull request to this repo changes.
+
+⛔ **Matt owns every skill. Never edit a file under `.claude/skills/`**, however wrong it looks; report the
+defect in your hand-back. Each skill there is a Windows junction to its home repo, never a copy, and gitignored
+(`REPO-SETUP.md` in the Signalbox repo), so an edit through it lands in another repo's working tree.
+
+**Commit scopes (`devops-git-conventions` section 3): one scope per commit, from this list, or none when the
+change spans the repository.** `workflows` (.github/workflows), `skills` (skills/ and junction lines), `secret-scan` (tools/secret-scan),
+`setup` (REPO-SETUP.md, COMPUTER-SETUP.md and tools/New-SkillJunction.ps1), `charter` (this file).
+A scope that is not here is added to this list in its own commit before the commit that uses it; never invented in
+the commit. Listed 2026-10-17 from the scopes this repo's history already used (`git log --format=%s | grep -oE '^[a-z]+\([^)]+\)'`) and its project layout.
 
 ## Session start — get current before you claim anything
 
