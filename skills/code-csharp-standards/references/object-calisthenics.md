@@ -6,18 +6,11 @@ dispositions were ruled by Matt on 2026-10-04, in an attended session, against m
 (3,378 files; 983 orchestrator, service and repository classes; 287 entity files). This document carries the
 reasoning; the rules themselves live in `SKILL.md`, which is what a reviewer applies.
 
-**Precedent.** The Repository Starter Kit's `object-calisthenics.instructions.md` (Copilot, 2025) states the nine
-rules for "business domain code" with DTOs, API models and configuration classes exempt. It says: *"No additional
-rules must be added, and none of these rules should be replaced or removed."* That is honored here in the sense
-that matters: all nine are listed, none is renamed, and where the house narrows one the narrowing is stated as a
-disposition under the original rule, not as a new rule.
-
-**The two exemptions every disposition relies on.** Both come from the starter kit and were sharpened in session:
+**The two exemptions every disposition relies on:**
 
 - **Data types are exempt**, and the test is shape, not folder or name: *a type with no method bodies beyond
   `ToString`, `Equals` and `GetHashCode` is data.* Entities, DTOs, POCOs, options types and row classes.
-- **Injected dependencies are exempt** from the counting rules. The starter kit exempted the logger; the house
-  exempts every constructor-injected collaborator, because in this architecture a behavior class's fields are its
+- **Injected dependencies are exempt** from the counting rules. The house exempts every constructor-injected collaborator, because in this architecture a behavior class's fields are its
   dependencies, not its state.
 
 ---
@@ -26,7 +19,7 @@ disposition under the original rule, not as a new rule.
 
 **Original.** A method has one level of indentation. A second level is extracted to a named method.
 
-**Disposition: adopted as written.** Two ways to get there, both from the starter kit's examples: extract the inner
+**Disposition: adopted as written.** Two ways to get there: extract the inner
 block to a private method, or filter first so the loop has nothing to test:
 
 ```csharp
@@ -100,8 +93,8 @@ Matt's expectation, recorded: applying this rule together with rule 8 will creat
 behavior over it lives there.
 
 **Disposition: adopted as written.** A behavior class does not expose a raw `List<T>` of domain items; it holds a
-type that wraps the collection and answers the questions callers ask of it (the starter kit's
-`GroupUserCollection.GetActiveUsers()` example).
+type that wraps the collection and answers the questions callers ask of it (a
+`GroupUserCollection.GetActiveUsers()`, for instance).
 
 ## 5. One dot per line
 
@@ -135,19 +128,16 @@ the thing is used too often, so extract it) or of a missing concept.
 
 ## 7. Keep all entities small
 
-**Original.** Bay's limits: 50 lines per class, 10 files per package. The starter kit's: 10 methods per class, 50
-lines per class, 10 classes per namespace.
+**Original.** Bay's limits: 50 lines per class, 10 files per package.
 
-**Disposition: adopted with a house ceiling of 500 lines per production file; the method and namespace limits are
-not adopted.** Fifty lines is unreachable for a Dapper repository with documented SQL, and the house already carries
+**Disposition: adopted with a house ceiling of 500 lines per production file; no method or package limit is adopted.** Fifty lines is unreachable for a Dapper repository with documented SQL, and the house already carries
 `GenerateDocumentationFile`, which puts a summary on every member. Measured on 2026-10-04: median production file 91
 lines, 92 files over 500, 16 over 1,000, the largest 2,476. **Named exceptions live in each repository's own
 `CLAUDE.md`, never in this skill**, which is public and shared across repos.
 
 ## 8. No classes with more than two instance variables
 
-**Original.** Two instance variables. A third is a sign the class has two responsibilities. The starter kit adds:
-do not count the logger.
+**Original.** Two instance variables. A third is a sign the class has two responsibilities.
 
 **Disposition: adopted for a class's own state, with injected dependencies exempt and no ceiling on them.**
 Measured: 1,095 instance members across the 983 behavior classes, of which 943 are injected interfaces and
@@ -164,8 +154,7 @@ remaining state is the class's responsibility made visible.
 ## 9. No getters, setters or properties
 
 **Original.** "Tell, don't ask." An object does not expose its state for others to make decisions on; the behavior
-that uses the data lives with the data. The starter kit adds: use private constructors and static factory methods
-for domain classes; DTOs are exempt.
+that uses the data lives with the data.
 
 **Disposition: adopted as two rules, for behavior classes only.**
 
@@ -177,8 +166,7 @@ Why two rules and not the original: in this architecture entities are data by de
 method body) and behavior lives in services, so the original rule's home, the rich domain object, does not exist
 here. The invariant the rule protects, that a transition is checked in one place, is kept by putting that place in
 a named service method. Measured: 0 public getters or setters on behavior classes, and about two ask-then-set
-sites, so both rules are nearly free today. The starter kit's private-constructor-and-factory guidance applies to
-domain classes with behavior and is therefore not a house rule.
+sites, so both rules are nearly free today.
 
 **Placement, which the original rule never needed:** because the rule depends on telling data from behavior, data
 types live under `Entities/` (public) or `DTOs/` (private), never under `Services/`, `Repositories/` or
@@ -191,6 +179,4 @@ under `Services/`, move; that is by-product, and one type per file is the open d
 
 - Jeff Bay, "Object Calisthenics", in *The ThoughtWorks Anthology* (Pragmatic Bookshelf, 2008).
   https://www.cs.helsinki.fi/u/luontola/tdd-2009/ext/ObjectCalisthenics.pdf
-- Repository Starter Kit, `github/instructions/object-calisthenics.instructions.md` (Copilot, 2025): the nine rules
-  with the domain-versus-DTO exemption and the logger exemption this document generalises.
 - Robert C. Martin, *Clean Code* (Prentice Hall, 2008).
