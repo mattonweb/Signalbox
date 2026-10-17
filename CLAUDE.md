@@ -5,6 +5,8 @@
 - **2026-10-17 (attended session with Matt):** the `devops-git-conventions` skill is now junctioned here and
   listed in the skills section, and this file gains the commit-scope list that skill requires each repository
   to hold. Nothing else changed.
+- **2026-10-17, evening (attended session with Matt):** the `code-software-standards` skill is now junctioned here
+  and listed with the other skills. Nothing else changed.
 
 Orientation for Claude Code sessions in this repo. Signalbox is the **public** home of the S-numbered
 pipeline workflows that every product repo calls, and of the public skills, including
@@ -71,13 +73,14 @@ Signalbox/
 
 ## Skills: reached by junction, owned by Matt
 
-`.claude/skills/` holds 1 Windows junction, never copies, each gitignored (`REPO-SETUP.md` in the Signalbox repo):
+`.claude/skills/` holds 2 Windows junctions, never copies, each gitignored (`REPO-SETUP.md` in the Signalbox repo):
 
 | Skill | Home | What it governs |
 |---|---|---|
 | `devops-git-conventions` | `C:\Source\Signalbox\skills\` | Git: trunk-based `feature/` and `hotfix/` branches, Conventional Commits with the 72-character subject and the verification line in every body, pull requests, merge commits, SortVer tags. Binds every commit here, whoever makes it, and every commit message a hand-back proposes. It carries no scope list; this repo's is below |
+| `code-software-standards` | `C:\Source\Signalbox\skills\` | The language-neutral half of the house code standards, read before the language skill: the data-versus-behavior shape test, SOLID as review checks, behavior-class and data-type rules, method shape, error boundaries, the 500-line ceiling, ambient state as a dependency. A language skill refines it and never relaxes it |
 
-The skill's home is this repo's own `skills\` folder. Claude Code discovers a skill only under
+Both skills' home is this repo's own `skills\` folder. Claude Code discovers a skill only under
 `.claude\skills\`, so the home repo needs the junction too (`REPO-SETUP.md`, *The home repo needs a
 junction too*). The bytes behind the junction are the ones a pull request to this repo changes.
 
