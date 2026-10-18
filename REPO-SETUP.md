@@ -166,6 +166,13 @@ The block holds no secret and is committed, public repositories included.
 A repository with the block but no registered app cannot push at all, which is the intended failure: no borrowed
 identity. Remove the block and the session is back to the person's own credentials.
 
+The helper keys on the repository path git passes it, which comes from the checkout's `origin` URL. **If `origin`
+still names an old owner or an old repository name that GitHub redirects, the helper looks up the old name, finds no
+registration, and offers nothing**; git then fails with `could not read Username`, which reads like a permission
+error and is not one. Check with `git remote get-url origin` and repoint with `git remote set-url origin
+https://github.com/<owner>/<name>.git` before the first session. Seen 2026-10-18 on two checkouts that predated an
+account rename.
+
 ## Rules
 
 - **Never copy a skill, or the hook, into another repo.** A copy is the drift this document exists to remove.
