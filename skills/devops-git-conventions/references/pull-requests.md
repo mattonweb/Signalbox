@@ -35,7 +35,7 @@ When it holds several, the title names the topic the way the merge commit will.
 ## 3. Description
 
 Four short parts, in this order. A part that does not apply is omitted, not left as a heading and never
-filled with "N/A". `references/pull-request-template.md` holds the four headings with a comment under each;
+filled with "N/A". `assets/pull-request-template.md` holds the four headings with a comment under each;
 copied to the host's template location (`.github/pull_request_template.md` on GitHub), the host pre-fills
 every new pull request with it, which is the tool enforcing the shape so the reviewer need not.
 

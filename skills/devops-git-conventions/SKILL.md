@@ -2,7 +2,7 @@
 name: devops-git-conventions
 description: Git conventions for every repository that adopts this skill. Use whenever creating a branch, writing or reviewing a commit message, drafting a commit message for someone else to commit, opening or reviewing a pull request, or tagging a release. Covers the trunk-based workflow, branch naming, Conventional Commits with the type table and the 72-character subject rule, the verification line every commit body carries, pull-request title and description, merge by merge commit, and the tag and version format. A pipeline tags every merge and builds once from the tag; this skill states the half a person has to get right before the pipeline sees it.
 owner: Matt
-version: 1.0.1
+version: 1.0.2
 visibility: public
 ---
 
@@ -82,7 +82,7 @@ Full form in `references/pull-requests.md`.
 - One branch, one topic, one pull request. Title in commit-subject form, at most 72 characters.
 - Description in four parts: why, what, verification, follow-ups.
 - Opened as a draft with auto-complete on, from a fully committed and pushed branch; marked ready when
-  complete. `references/pull-request-template.md` gives the host the four headings to pre-fill.
+  complete. `assets/pull-request-template.md` gives the host the four headings to pre-fill.
 - Merged by merge commit, never squash, never rebase. The merge commit is the host's and is the one commit
   on `main` exempt from the message form.
 - Branch deleted after merge.
@@ -113,7 +113,7 @@ enforceable at commit time on the committer's machine; the rest need a reviewer.
   commit on a hit, failing closed when the scanner is missing. The install, the test that proves it refuses,
   and how it chains to a repository's own hook are in this repository's `COMPUTER-SETUP.md`. A commit that
   the scan refused is fixed by moving the value out of the repository, never by skipping the hook.
-- **The commit-message form.** `references/commit-msg-hook.sh` is a `commit-msg` hook that checks the first
+- **The commit-message form.** `scripts/commit-msg-hook.sh` is a `commit-msg` hook that checks the first
   line against sections 2 to 4 of the commit-messages reference: a known type, at most one scope, the `!`
   and colon, lowercase after the colon, at most 72 characters, no trailing full stop. Merge commits and
   `fixup!`/`squash!` lines are exempt. It checks form, not meaning: a subject that passes can still be a

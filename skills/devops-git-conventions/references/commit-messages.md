@@ -110,7 +110,7 @@ public.
 | `wip`, `fixes`, `more changes` | not a commit message |
 
 **Enforced by a hook.** Sections 2 to 4 are checked on the committer's machine by
-`references/commit-msg-hook.sh`, a `commit-msg` hook that refuses a first line that breaks them. It does
+`scripts/commit-msg-hook.sh`, a `commit-msg` hook that refuses a first line that breaks them. It does
 not read the body and cannot judge whether the subject is a good one.
 
 ## 5. Body and footers
