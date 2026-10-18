@@ -25,6 +25,9 @@ route is set, locked and clear. This repo is the public face of that system for 
   Every skill is owned by Matt and changes only in an attended session with him.
 - `tools/secret-scan/` is the installer, hook and generic base config behind COMPUTER-SETUP.md.
 - `tools/New-SkillJunction.ps1` is the script behind REPO-SETUP.md, for skills and for the hook below.
+- `tools/agent-git-credential/` is a git credential helper, a `gh` shim and an installer that let a coding agent's
+  session commit, push and work pull requests as its own GitHub App, keys in a KeePass database keyed to the
+  Windows user account (COMPUTER-SETUP.md for the machine, REPO-SETUP.md for the per-repo env block).
 - `tools/git-guardrail/` is a Claude Code PreToolUse hook that denies the git commands a repo's working
   agreement forbids, with three profiles; each repo reaches it by junction at `.claude/hooks/git-guardrail`.
 - `docs/` holds the public contract for each workflow: inputs, secrets and what it reports.
