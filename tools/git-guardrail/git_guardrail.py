@@ -42,7 +42,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 HOOK_EVENT = "PreToolUse"
 SEPARATORS = {"&&", "||", ";", "|", "&", "|&", ";;"}
 INTERPRETERS = {"bash", "sh", "zsh", "dash", "ksh", "pwsh", "powershell", "cmd", "eval", "xargs"}
@@ -296,6 +296,31 @@ def program_name(token):
     return name[:-4] if name.endswith(".exe") else name
 
 
+REDIRECT = re.compile(r"^(\d*[<>]{1,2}&?\d*|&>>?)(\S*)$")
+
+
+def strip_redirects(segment):
+    """Drop shell redirections (2>&1, > file, 2>/dev/null, &>> log) so a redirect is never read as an argument.
+
+    A bare operator such as ">" or "2>" takes the next token as its target; a complete form such as "2>&1" or
+    "2>/dev/null" stands alone. Seen 2026-10-18: a coding agent's `git push -u origin feature/x 2>&1 | tail -8`
+    was refused with "push to 2>" because the operator survived into the push's destination list.
+    """
+    out, skip = [], False
+    for token in segment:
+        if skip:
+            skip = False
+            continue
+        match = REDIRECT.match(token)
+        if not match:
+            out.append(token)
+            continue
+        operator, target = match.group(1), match.group(2)
+        if target == "" and not operator.rstrip("0123456789").endswith("&"):
+            skip = True
+    return out
+
+
 def strip_wrappers(segment):
     """Drop leading env assignments and wrapper programs (env, exec, sudo, timeout 5, ...)."""
     index = 0
@@ -356,7 +381,7 @@ def find_violation(command, profile, cwd=None, depth=0):
         return None
     rules = PROFILES[profile]
     for raw in segments(tokenise(command)):
-        segment = strip_wrappers(raw)
+        segment = strip_wrappers(strip_redirects(raw))
         hit = check_git(segment, rules, cwd)
         if hit:
             return hit
