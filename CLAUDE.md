@@ -2,6 +2,10 @@
 
 ## Recent changes (attended edits to this file — read, then carry on)
 
+- **2026-10-18, later (attended session with Matt):** `tools/agent-git-credential/` is added: a .NET credential helper and
+  `gh` shim that let a coding agent act as its own GitHub App. It is the Co-Founder's tooling like the rest of `tools/`,
+  not yours to edit. The commit-scope list names it. Nothing about how you work changed yet; when your repository's
+  env block arrives, your charter will say so.
 - **2026-10-18 (attended session with Matt):** the workflow files are named in full words with a `reusable-` prefix, not
   by step number; the first one, `reusable-pull-request-checks.yml`, is on `main` (pull request #12). The ownership
   bullet and the layout block say so. Nothing else changed.
@@ -80,8 +84,8 @@ Signalbox/
 │   └── workflows/        reusable-<what-it-does>.yml, reusable (workflow_call); nothing runs here on its own
 ├── skills/               <name>/SKILL.md, public only, owner and version in frontmatter
 ├── docs/                 the public contract for each workflow
-├── tools/                secret-scan/ (installer, hook, base config), git-guardrail/ (PreToolUse hook, by junction)
-│                         and New-SkillJunction.ps1
+├── tools/                secret-scan/ (installer, hook, base config), git-guardrail/ (PreToolUse hook, by junction),
+│                         agent-git-credential/ (credential helper + gh shim, .NET) and New-SkillJunction.ps1
 ├── COMPUTER-SETUP.md     once per machine: the fail-closed secrets scan
 └── REPO-SETUP.md         once per repo: shared skills by junction point
 ```
@@ -106,7 +110,7 @@ defect in your hand-back. Each skill there is a Windows junction to its home rep
 **Commit scopes (`devops-git-conventions` section 3): one scope per commit, from this list, or none when the
 change spans the repository.** `workflows` (.github/workflows), `skills` (skills/ and junction lines), `secret-scan` (tools/secret-scan),
 `setup` (REPO-SETUP.md, COMPUTER-SETUP.md and tools/New-SkillJunction.ps1), `git-guardrail` (tools/git-guardrail),
-`charter` (this file).
+`agent-git-credential` (tools/agent-git-credential), `charter` (this file).
 A scope that is not here is added to this list in its own commit before the commit that uses it; never invented in
 the commit. Listed 2026-10-17 from the scopes this repo's history already used (`git log --format=%s | grep -oE '^[a-z]+\([^)]+\)'`) and its project layout.
 

@@ -1,0 +1,22 @@
+#!/bin/sh
+# gh shim for agent sessions. Installed to ~/bin/gh by tools/agent-git-credential/install.sh, ahead of the
+# real GitHub CLI on Git Bash's PATH. See COMPUTER-SETUP.md in the Signalbox repo.
+#
+# When the session carries AGENT_GIT_IDENTITY=github-app (set by the repository's .claude/settings.json env
+# block), the shim asks the credential helper for the repository's GitHub App token and runs the real gh with
+# it, so pull-request commands act as the app. In any other shell it runs the real gh untouched.
+
+REAL_GH="${GH_REAL_PATH:-/c/Program Files/GitHub CLI/gh.exe}"
+HELPER="$HOME/bin/agent-git-credential/git-credential-github-app.exe"
+
+if [ "$AGENT_GIT_IDENTITY" != "github-app" ]; then
+  exec "$REAL_GH" "$@"
+fi
+
+REMOTE="$(git remote get-url origin 2>/dev/null)" || {
+  echo "gh: this session acts as a GitHub App, which needs a repository with an origin remote; run gh from inside the repository." >&2
+  exit 1
+}
+REPOSITORY="$(printf '%s' "$REMOTE" | sed -E 's#^(https://github\.com/|git@github\.com:)##; s#\.git$##')"
+TOKEN="$("$HELPER" token --repository "$REPOSITORY")" || exit 1
+GH_TOKEN="$TOKEN" exec "$REAL_GH" "$@"

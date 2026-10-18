@@ -132,6 +132,40 @@ start a new session there, and verify with the discriminator in the hook's READM
 `git push --dry-run` and expect a deny that names the profile. Pulling this repo updates the hook in every
 repo junctioned to it.
 
+## An agent identity by env block: the repository's GitHub App
+
+Once the machine has the agent git identity tooling (COMPUTER-SETUP.md) and the repository's GitHub App is
+registered, the repository opts its agent sessions in with an `env` block in `.claude/settings.json`. Claude Code
+applies it to every tool call in a session started in that folder and to nothing else, so Visual Studio or a plain
+terminal in the same checkout keep the person's own identity.
+
+```json
+"env": {
+  "AGENT_GIT_IDENTITY": "github-app",
+  "GIT_CONFIG_COUNT": "3",
+  "GIT_CONFIG_KEY_0": "credential.helper",
+  "GIT_CONFIG_VALUE_0": "",
+  "GIT_CONFIG_KEY_1": "credential.helper",
+  "GIT_CONFIG_VALUE_1": "!\"$HOME/bin/agent-git-credential/git-credential-github-app.exe\"",
+  "GIT_CONFIG_KEY_2": "credential.useHttpPath",
+  "GIT_CONFIG_VALUE_2": "true",
+  "GIT_AUTHOR_NAME": "My App Coding Agent",
+  "GIT_AUTHOR_EMAIL": "123456+my-app-coding-agent[bot]@users.noreply.github.com",
+  "GIT_COMMITTER_NAME": "My App Coding Agent",
+  "GIT_COMMITTER_EMAIL": "123456+my-app-coding-agent[bot]@users.noreply.github.com"
+}
+```
+
+Line by line: the marker the `gh` shim reads; three git settings passed as if on the command line, the first an
+empty `credential.helper` that clears any helper configured elsewhere (the machine's credential manager would
+otherwise answer first with the person's identity), the second the helper itself, the third turning the repository
+path on so the helper knows which app to use; then the bot's name and no-reply address as author and committer.
+The number in the address is the bot user's id, not the app id: `gh api users/my-app-coding-agent[bot] --jq .id`.
+The block holds no secret and is committed, public repositories included.
+
+A repository with the block but no registered app cannot push at all, which is the intended failure: no borrowed
+identity. Remove the block and the session is back to the person's own credentials.
+
 ## Rules
 
 - **Never copy a skill, or the hook, into another repo.** A copy is the drift this document exists to remove.

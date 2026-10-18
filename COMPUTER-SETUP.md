@@ -1,6 +1,7 @@
 # Computer setup: a fail-closed secrets scan and the commit-message form on every commit
 
-One install per machine puts two hooks in front of every git repo on it. A pre-commit hook runs
+One install per machine puts two hooks in front of every git repo on it, and a second installer gives coding agents
+their own GitHub identity (the last section). A pre-commit hook runs
 [Betterleaks](https://github.com/betterleaks/betterleaks) over the staged changes and refuses the commit
 if anything looks like a secret. It fails closed: if the scanner is missing, the commit is refused too. An
 unscanned commit that passes silently is the failure this hook exists to prevent. A commit-msg hook checks
@@ -136,6 +137,39 @@ private.
 After the scan passes, the hook runs the repo's own `.git/hooks/pre-commit` if one exists, so a repo's
 local hooks still work. The pass-through hooks do the same for pre-push, post-checkout, post-commit,
 post-merge and prepare-commit-msg, which Git LFS and similar tools rely on.
+
+## Agent git identity: a coding agent pushes as its own GitHub App
+
+A second installer, `tools/agent-git-credential/install.sh`, lets a coding agent's session commit, push and work
+pull requests under a GitHub App identity of its own. It needs the .NET 10 SDK and the GitHub CLI
+(`winget install --id GitHub.cli -e`). From the repo root, in Git Bash:
+
+```bash
+sh tools/agent-git-credential/install.sh
+```
+
+It publishes the credential helper to `~/bin/agent-git-credential/`, places `gh` shims at `~/bin/gh` and
+`~/bin/gh.ps1`, and creates `%LOCALAPPDATA%\Signalbox\agent-git-credential\github-apps.kdbx`, a KeePass 2 database
+with no master password, keyed by a random secret that Windows data protection ties to this user account, if
+there is none yet. It changes no git configuration.
+
+Then, for each repository whose agent gets an identity: create a GitHub App on the owning account (one per
+repository, installed on that repository only, with Contents and Pull requests read and write and nothing else),
+download its private key, and register it:
+
+```bash
+~/bin/agent-git-credential/git-credential-github-app.exe set --repository owner/name --app-id N --installation-id N --private-key-file ~/Downloads/the-key.pem
+```
+
+The app id is on the app's settings page; the installation id is the number in the address of the installation's
+settings page. Delete the `.pem` once registered. The repository itself opts its agent sessions in through the `env`
+block in its `.claude/settings.json`, which REPO-SETUP.md describes; a session without that block, and Visual Studio
+in the same folder, keep the person's own identity. Full design and the trust boundary in
+`tools/agent-git-credential/README.md`.
+
+Verify: in a session that carries the env block, `git push --dry-run` on a feature branch authenticates as the app,
+and `gh api user --jq .login` prints the app's bot login. In a plain terminal in the same folder, `gh api user --jq
+.login` prints your own.
 
 ## Commit-message form
 
