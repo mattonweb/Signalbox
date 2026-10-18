@@ -1,9 +1,11 @@
-# Computer setup: a fail-closed secrets scan on every commit
+# Computer setup: a fail-closed secrets scan and the commit-message form on every commit
 
-One install per machine puts a pre-commit hook in front of every git repo on it. The hook runs
+One install per machine puts two hooks in front of every git repo on it. A pre-commit hook runs
 [Betterleaks](https://github.com/betterleaks/betterleaks) over the staged changes and refuses the commit
 if anything looks like a secret. It fails closed: if the scanner is missing, the commit is refused too. An
-unscanned commit that passes silently is the failure this hook exists to prevent.
+unscanned commit that passes silently is the failure this hook exists to prevent. A commit-msg hook checks
+the first line of the message against the house form from the `devops-git-conventions` skill, in
+repositories that have adopted that skill (the *Commit-message form* section below).
 
 Per-repo setup (reaching shared skills by junction point) is in [REPO-SETUP.md](REPO-SETUP.md).
 
@@ -40,7 +42,7 @@ The installer is safe to re-run. It:
 | Does | Where | On re-run |
 |---|---|---|
 | Downloads the pinned Betterleaks release and checks its SHA-256 against the value written in the script | `~/bin/betterleaks.exe` | Skipped if that version is already there |
-| Installs the pre-commit hook and pass-through hooks | `~/.githooks/` | Refreshed |
+| Installs the pre-commit hook, the commit-msg hook and its check script, and pass-through hooks | `~/.githooks/` | Refreshed |
 | Installs the generic base config | `~/.githooks/betterleaks.toml` | Kept if a config is already there |
 | Points git at that hooks folder for every repo | `git config --global core.hooksPath` | Re-set |
 | Lists repos whose own `core.hooksPath` would bypass the machine hook | printed | Re-checked |
@@ -78,6 +80,17 @@ git add t.txt && git commit -m "should be refused"
 
 Expect `leaks found: 1` and `secret-scan: commit refused`. Delete the file and the commit goes through.
 Delete the scratch repo afterwards.
+
+That the commit-message form is checked. In a repo that holds the `devops-git-conventions` junction
+(any of the house repos), stage a harmless change and try a subject in prose:
+
+```bash
+git commit --allow-empty -m "Added a thing"
+```
+
+Expect `commit-msg: refused. first line must start with one of: feat|fix|...`. The same commit with the
+subject `chore: try the commit-msg hook` goes through; delete it with `git reset --soft HEAD~1` if you
+made it in a real repo, or make it in the scratch repo above after junctioning the skill into it.
 
 ### 4. Add your own rules without touching the base
 
@@ -122,7 +135,22 @@ private.
 
 After the scan passes, the hook runs the repo's own `.git/hooks/pre-commit` if one exists, so a repo's
 local hooks still work. The pass-through hooks do the same for pre-push, post-checkout, post-commit,
-post-merge, commit-msg and prepare-commit-msg, which Git LFS and similar tools rely on.
+post-merge and prepare-commit-msg, which Git LFS and similar tools rely on.
+
+## Commit-message form
+
+The `commit-msg` hook installed beside the scan checks the first line of every commit message against
+sections 2 to 4 of the `devops-git-conventions` skill: a known type, at most one scope, the `!` and colon,
+lowercase after the colon, at most 72 characters, no trailing full stop. Merge commits and `fixup!`/`squash!`
+lines are exempt. The check is the skill's own `scripts/commit-msg-hook.sh`, copied to
+`~/.githooks/commit-msg-conventions.sh` by the installer and refreshed on every run, so re-run the installer
+after pulling a new version of the skill.
+
+It binds only a repository that has adopted the skill, detected by the junction at
+`.claude/skills/devops-git-conventions` (REPO-SETUP.md). Every other repository on the machine passes
+straight through to its own `.git/hooks/commit-msg`. Inside an adopting repository the hook fails closed:
+a missing check script refuses the commit until the installer is re-run. It checks form, not meaning; the
+skill's checklist is still the reviewer's.
 
 ## When it refuses a commit
 
