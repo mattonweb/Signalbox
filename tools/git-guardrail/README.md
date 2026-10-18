@@ -19,7 +19,7 @@ pattern list, while `echo "git push"` and `git log --grep="git push"` get caught
 | File | What it is |
 |---|---|
 | `git_guardrail.py` | the hook |
-| `test_git_guardrail.py` | 217-row rule table (82 allow, 135 deny), a 45-row branch-pinned table for the `branch` profile (21 allow, 24 deny), plus payload, fail-open, subprocess and real-repository tests |
+| `test_git_guardrail.py` | 217-row rule table (84 allow, 133 deny), a 57-row branch-pinned table for the `branch` profile (23 allow, 34 deny), plus payload, fail-open, subprocess and real-repository tests |
 | `settings-snippet.handback.json` | the `hooks` block to merge into a repo's `.claude/settings.json` for the `handback` profile |
 | `settings-snippet.branch.json` | the same for `branch` |
 | `settings-snippet.author.json` | the same for `author` |
