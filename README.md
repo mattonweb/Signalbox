@@ -23,7 +23,9 @@ route is set, locked and clear. This repo is the public face of that system for 
 - `skills/` holds public skills for coding agents, each with an owner and a version in its frontmatter.
   Every skill is owned by Matt and changes only in an attended session with him.
 - `tools/secret-scan/` is the installer, hook and generic base config behind COMPUTER-SETUP.md.
-- `tools/New-SkillJunction.ps1` is the script behind REPO-SETUP.md.
+- `tools/New-SkillJunction.ps1` is the script behind REPO-SETUP.md, for skills and for the hook below.
+- `tools/git-guardrail/` is a Claude Code PreToolUse hook that denies the git commands a repo's working
+  agreement forbids, with three profiles; each repo reaches it by junction at `.claude/hooks/git-guardrail`.
 - `docs/` holds the public contract for each workflow: inputs, secrets and what it reports.
 - `CLAUDE.md` is the working agreement for coding-agent sessions here, including the human-gated commit rule.
 - `mcp.json.template` is the shape of the gitignored `.mcp.json`; the bearer key is placed by hand.

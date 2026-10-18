@@ -116,9 +116,25 @@ this junction existed:
 The root `skills\` folder is the storage location. `.claude\skills\` is the discovery location. Both are
 needed, and the junction joins them.
 
+## A hook by junction: the git guardrail
+
+The same mechanism serves a shared hook. `tools\git-guardrail` in this repo is a Claude Code PreToolUse
+hook that denies the git commands a repo's working agreement forbids, with three profiles
+(`tools\git-guardrail\README.md`). A repo reaches it by a junction at `.claude\hooks\git-guardrail`:
+
+```powershell
+.\New-SkillJunction.ps1 -AgentHome C:\Source\MyApp -SkillName git-guardrail -Source Signalbox -Kind Hook
+```
+
+The script reports the junction and the gitignore line as for a skill, and the same tracked-copy guard
+applies. Then merge the matching `settings-snippet.<profile>.json` into the repo's `.claude\settings.json`,
+start a new session there, and verify with the discriminator in the hook's README: ask the agent to run
+`git push --dry-run` and expect a deny that names the profile. Pulling this repo updates the hook in every
+repo junctioned to it.
+
 ## Rules
 
-- **Never copy a skill into another repo.** A copy is the drift this document exists to remove.
+- **Never copy a skill, or the hook, into another repo.** A copy is the drift this document exists to remove.
 - **Decide where a skill lives when it is created.** Moving it later changes its path and breaks every
   junction pointing at it until each machine is re-pointed.
 - **Every skill's `SKILL.md` carries `owner:` and `version:` in its frontmatter.** The owner is the one
@@ -147,3 +163,4 @@ junction.
 | `git status` shows `.claude/skills/` as untracked | Gitignore line not yet committed on this branch | Commit it, or pull the branch that has it |
 | Agent does not list the skill | Skill is at a root `skills\` folder with no junction under `.claude\skills\` | Create the home repo's own junction |
 | Junction exists but the skill is stale | Home repo not pulled | Pull the home repo |
+| Hook shows a non-blocking `hook error` | Junction missing or `python` not on the path | Recreate the junction; check `python --version` in Git Bash |

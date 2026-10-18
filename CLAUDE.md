@@ -7,6 +7,9 @@
   to hold. Nothing else changed.
 - **2026-10-17, evening (attended session with Matt):** the `code-software-standards` skill is now junctioned here
   and listed with the other skills. Nothing else changed.
+- **2026-10-17, late (attended session with Matt):** `tools/git-guardrail/` is added, a PreToolUse hook that repos
+  reach by junction; the layout line and the commit-scope list below name it. Nothing about how you work changed:
+  this repo is not wired to it yet, and the human-gated commit rule stands.
 
 Orientation for Claude Code sessions in this repo. Signalbox is the **public** home of the S-numbered
 pipeline workflows that every product repo calls, and of the public skills, including
@@ -66,7 +69,8 @@ Signalbox/
 │   └── workflows/        S<nn>-<step>.yml, reusable (workflow_call); nothing runs here on its own
 ├── skills/               <name>/SKILL.md, public only, owner and version in frontmatter
 ├── docs/                 the public contract for each workflow
-├── tools/                secret-scan/ (installer, hook, base config) and New-SkillJunction.ps1
+├── tools/                secret-scan/ (installer, hook, base config), git-guardrail/ (PreToolUse hook, by junction)
+│                         and New-SkillJunction.ps1
 ├── COMPUTER-SETUP.md     once per machine: the fail-closed secrets scan
 └── REPO-SETUP.md         once per repo: shared skills by junction point
 ```
@@ -90,7 +94,8 @@ defect in your hand-back. Each skill there is a Windows junction to its home rep
 
 **Commit scopes (`devops-git-conventions` section 3): one scope per commit, from this list, or none when the
 change spans the repository.** `workflows` (.github/workflows), `skills` (skills/ and junction lines), `secret-scan` (tools/secret-scan),
-`setup` (REPO-SETUP.md, COMPUTER-SETUP.md and tools/New-SkillJunction.ps1), `charter` (this file).
+`setup` (REPO-SETUP.md, COMPUTER-SETUP.md and tools/New-SkillJunction.ps1), `git-guardrail` (tools/git-guardrail),
+`charter` (this file).
 A scope that is not here is added to this list in its own commit before the commit that uses it; never invented in
 the commit. Listed 2026-10-17 from the scopes this repo's history already used (`git log --format=%s | grep -oE '^[a-z]+\([^)]+\)'`) and its project layout.
 
