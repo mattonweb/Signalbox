@@ -1,0 +1,29 @@
+#!/bin/sh
+# Machine-wide commit-msg hook: the house commit-message form, then the repo's own hook.
+# Installed by tools/secret-scan/install.sh into ~/.githooks beside pre-commit. See COMPUTER-SETUP.md.
+#
+# Binds only a repository that has adopted the devops-git-conventions skill, which is detected by the
+# skill's junction at .claude/skills/devops-git-conventions (REPO-SETUP.md). Any other repository passes
+# straight through to its own hook, so a machine that holds repos outside the house is not affected.
+#
+# Fails CLOSED inside an adopting repo: if the check script is missing, the commit is refused, for the
+# same reason the secret scan does. Re-run the installer to restore it.
+
+TOP="$(git rev-parse --show-toplevel 2>/dev/null)"
+CHECK="$HOME/.githooks/commit-msg-conventions.sh"
+
+if [ -n "$TOP" ] && [ -f "$TOP/.claude/skills/devops-git-conventions/SKILL.md" ]; then
+  if [ ! -f "$CHECK" ]; then
+    echo "commit-msg: $CHECK not found - commit refused." >&2
+    echo "commit-msg: run tools/secret-scan/install.sh from the Signalbox repo." >&2
+    exit 1
+  fi
+  sh "$CHECK" "$@" || exit $?
+fi
+
+# Chain to the repo's own commit-msg hook, which core.hooksPath would otherwise bypass.
+GITDIR="$(git rev-parse --git-common-dir)"
+if [ -x "$GITDIR/hooks/commit-msg" ]; then
+  exec "$GITDIR/hooks/commit-msg" "$@"
+fi
+exit 0

@@ -12,7 +12,8 @@ route is set, locked and clear. This repo is the public face of that system for 
 ## Start here
 
 - [COMPUTER-SETUP.md](COMPUTER-SETUP.md), once per machine: a fail-closed secrets scan on every commit,
-  with Betterleaks, and how to add your own private rules on top without editing the base.
+  with Betterleaks, and how to add your own private rules on top without editing the base; and the
+  `commit-msg` hook that holds every commit in an adopting repo to the house message form.
 - [REPO-SETUP.md](REPO-SETUP.md), once per repo: reach a shared skill by junction point instead of a copy,
   with the Roadbed skill as the worked example.
 

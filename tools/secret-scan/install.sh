@@ -1,5 +1,6 @@
 #!/bin/sh
-# Install the machine-wide secret-scan commit hook on a Windows machine (Git Bash).
+# Install the machine-wide git hooks on a Windows machine (Git Bash): the secret scan on pre-commit and
+# the house commit-message form on commit-msg, in repositories that adopt the devops-git-conventions skill.
 # Run once per computer from the Signalbox repo root. See COMPUTER-SETUP.md.
 #   Git Bash:    sh tools/secret-scan/install.sh
 #   PowerShell:  & "$(Split-Path (Split-Path (Get-Command git).Source))\bin\sh.exe" tools/secret-scan/install.sh
@@ -17,7 +18,8 @@ SHA256="94310d028285a1bcce7f160bc19eb62f87de6460c95bfd4319151ef5b501ed3f"
 URL="https://github.com/betterleaks/betterleaks/releases/download/v${VERSION}/${ASSET}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 HOOKS="$HOME/.githooks"
-PASSTHROUGH="pre-push post-checkout post-commit post-merge commit-msg prepare-commit-msg"
+PASSTHROUGH="pre-push post-checkout post-commit post-merge prepare-commit-msg"
+CONVENTIONS="$HERE/../../skills/devops-git-conventions/scripts/commit-msg-hook.sh"
 
 # 1. Binary (skip download when the pinned version is already installed)
 mkdir -p "$HOME/bin"
@@ -34,6 +36,9 @@ echo "betterleaks $("$HOME/bin/betterleaks.exe" version) in $HOME/bin"
 # 2. Hooks (always refreshed) and the base config (only if none is there yet)
 mkdir -p "$HOOKS"
 cp "$HERE/hooks/pre-commit" "$HOOKS/pre-commit"
+cp "$HERE/hooks/commit-msg" "$HOOKS/commit-msg"
+[ -f "$CONVENTIONS" ] || { echo "missing $CONVENTIONS - is this the Signalbox repo root?" >&2; exit 1; }
+cp "$CONVENTIONS" "$HOOKS/commit-msg-conventions.sh"
 for h in $PASSTHROUGH; do cp "$HERE/hooks/passthrough" "$HOOKS/$h"; done
 if [ -f "$HOOKS/betterleaks.toml" ]; then
   echo "config: kept existing $HOOKS/betterleaks.toml (not overwritten)"
