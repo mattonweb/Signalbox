@@ -2,6 +2,9 @@
 
 ## Recent changes (attended edits to this file — read, then carry on)
 
+- **2026-10-18 (attended session with Matt):** the workflow files are named in full words with a `reusable-` prefix, not
+  by step number; the first one, `reusable-pull-request-checks.yml`, is on `main` (pull request #12). The ownership
+  bullet and the layout block say so. Nothing else changed.
 - **2026-10-17, late (attended session with Matt):** a git-guardrail hook is wired in `.claude/settings.json`, reached by
   junction at `.claude/hooks/git-guardrail` from the Signalbox repo (gitignored). Profile `branch`: it refuses `git commit`
   and `git push` on `main` and allows them only on `feature/*` or `hotfix/*` branches; merge, rebase, reset and the
@@ -52,9 +55,12 @@ callers pin to a version tag and the tag moves only when a human moves it.
 
 ## What you own here, and what you do not
 
-- **`.github/workflows/`** — the reusable workflows, one file per pipeline step, named for the step it
-  triggers on: `S20-pr-checks.yml`, `S32-lane-checks.yml`, `S36-tag-main.yml`, `S42-build-release.yml`.
-  Step numbers are frozen; a new step gets a fresh number at the end of its decade or a letter suffix, and
+- **`.github/workflows/`** — the reusable workflows, one file per pipeline step, **named in full words for what
+  the step does, never by its step number** (Matt, 2026-10-18: house names use full names, no shorthand), with a
+  `reusable-` prefix because that is what a `workflow_call` file is: `reusable-pull-request-checks.yml` (S20),
+  `reusable-merge-lane-checks.yml` (S32), `reusable-tag-main.yml` (S36), `reusable-build-release.yml` (S42). The step
+  number goes in a comment at the top of the file. A product repository's caller drops the prefix
+  (`pull-request-checks.yml`). Step numbers are frozen; a new step gets a fresh number at the end of its decade or a letter suffix, and
   numbers are never reused.
 - **`skills/`** — public skills, one folder per skill with a `SKILL.md` carrying an `owner` and a `version`
   in its frontmatter. **Every skill is owned by Matt, and a skill changes only in an attended session with
@@ -71,7 +77,7 @@ callers pin to a version tag and the tag moves only when a human moves it.
 Signalbox/
 ├── .github/
 │   ├── CODEOWNERS
-│   └── workflows/        S<nn>-<step>.yml, reusable (workflow_call); nothing runs here on its own
+│   └── workflows/        reusable-<what-it-does>.yml, reusable (workflow_call); nothing runs here on its own
 ├── skills/               <name>/SKILL.md, public only, owner and version in frontmatter
 ├── docs/                 the public contract for each workflow
 ├── tools/                secret-scan/ (installer, hook, base config), git-guardrail/ (PreToolUse hook, by junction)
