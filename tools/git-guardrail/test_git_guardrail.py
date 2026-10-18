@@ -28,6 +28,10 @@ UNREAD = ": the checked-out branch could not be read"
 ROWS = [
     # --- handback: history commands are always denied -------------------------------------------
     ("handback", "git commit -m \"feat(api): add thing\"", "commit"),
+    ("handback", "git push 2>&1 | tail -3", "push"),
+    ("handback", "git status 2>/dev/null", ALLOW),
+    ("handback", "git log --oneline > log.txt", ALLOW),
+    ("author", "git push --force 2>&1", "push --force / --delete"),
     ("handback", "git commit", "commit"),
     ("handback", "git commit --amend --no-edit", "commit"),
     ("handback", "git push", "push"),
@@ -263,6 +267,9 @@ BRANCH_ROWS = [
     ("feature/x", "git push origin HEAD", ALLOW),
     ("feature/x", "git push -u origin HEAD", ALLOW),
     ("feature/x", "git push --set-upstream origin HEAD", ALLOW),
+    ("feature/x", "git push -u origin feature/x 2>&1 | tail -8", ALLOW),
+    ("feature/x", "git push -u origin feature/x > push.log 2>&1", ALLOW),
+    ("feature/x", "git push origin HEAD:main 2>&1 | tail -3", "push to main" + OFF_TOPIC),
     ("feature/x", "git add -A && git commit -m x && git push -u origin HEAD", ALLOW),
     ("feature/x", "git -C C:\\Source\\Repo commit -m x", ALLOW),
     ("feature/x", "bash -c \"git commit -m x && git push\"", ALLOW),

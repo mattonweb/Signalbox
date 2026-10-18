@@ -19,7 +19,7 @@ pattern list, while `echo "git push"` and `git log --grep="git push"` get caught
 | File | What it is |
 |---|---|
 | `git_guardrail.py` | the hook |
-| `test_git_guardrail.py` | 213-row rule table (82 allow, 131 deny), a 54-row branch-pinned table for the `branch` profile (21 allow, 33 deny), plus payload, fail-open, subprocess and real-repository tests |
+| `test_git_guardrail.py` | 217-row rule table (82 allow, 135 deny), a 45-row branch-pinned table for the `branch` profile (21 allow, 24 deny), plus payload, fail-open, subprocess and real-repository tests |
 | `settings-snippet.handback.json` | the `hooks` block to merge into a repo's `.claude/settings.json` for the `handback` profile |
 | `settings-snippet.branch.json` | the same for `branch` |
 | `settings-snippet.author.json` | the same for `author` |
@@ -181,6 +181,8 @@ python -c "import json;print(json.dumps({'tool_name':'Bash','tool_input':{'comma
   supported way to point at another repository. In PowerShell, quote a `-C` path that carries backslashes
   (or use forward slashes): the tokeniser follows POSIX quoting, so an unquoted `C:\Source\Repo` loses its
   backslashes, the branch cannot be read there, and the command is denied (closed, not open).
+- Shell redirections (`2>&1`, `> file`, `2>/dev/null`) are stripped before a command is read, since 1.1.1; a pipe splits the
+  line and the part after it is read on its own. A charter may still ask agents to run git plain; the hook no longer needs it.
 - False positives: a heredoc or multi-line string whose own line starts with `git push` reads as a
   command; re-issue with the text in a file. `git commit -m "docs: never git push"` is fine (quoted
   strings are only opened under `bash -c`, `sh -c`, `pwsh`, `powershell`, `cmd`, `eval`, `xargs`).
