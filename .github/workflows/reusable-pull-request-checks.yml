@@ -1,0 +1,105 @@
+# Pipeline step S20: unmetered checks on every push (build, unit tests, optional format check).
+#
+# A reusable workflow. Nothing in this repository triggers it; a product repository calls it from its own
+# .github/workflows/pull-request-checks.yml on pull_request, pinned to a version tag of this repository.
+# The public contract is docs/reusable-pull-request-checks.md.
+
+name: Reusable pull request checks
+
+on:
+  workflow_call:
+    inputs:
+      solution-path:
+        description: Path to the solution or project file, relative to the repository root. Passed as one argument, so a path with spaces needs no extra quoting.
+        type: string
+        required: true
+      dotnet-version:
+        description: The .NET SDK version to install, in any form actions/setup-dotnet accepts.
+        type: string
+        default: 10.0.x
+      configuration:
+        description: The build configuration passed to dotnet build and dotnet test.
+        type: string
+        default: Release
+      runs-on:
+        description: The runner label. A caller whose code needs Windows passes windows-latest.
+        type: string
+        default: ubuntu-latest
+      test-filter:
+        description: Passed to dotnet test --filter when non-empty. Empty runs every test.
+        type: string
+        default: ""
+      enforce-format:
+        description: When true, run dotnet format --verify-no-changes on the solution and fail on a difference.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-reusable-pull-request-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ${{ inputs.runs-on }}
+    env:
+      SOLUTION_PATH: ${{ inputs.solution-path }}
+      CONFIGURATION: ${{ inputs.configuration }}
+      TEST_FILTER: ${{ inputs.test-filter }}
+      TEST_RESULTS_DIRECTORY: test-results
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET ${{ inputs.dotnet-version }}
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Restore
+        id: restore
+        run: dotnet restore "$SOLUTION_PATH"
+
+      - name: Build
+        id: build
+        run: dotnet build "$SOLUTION_PATH" --no-restore --configuration "$CONFIGURATION"
+
+      - name: Test
+        id: test
+        run: |
+          arguments=(--no-build --configuration "$CONFIGURATION" --logger trx --results-directory "$TEST_RESULTS_DIRECTORY")
+          if [ -n "$TEST_FILTER" ]; then
+            arguments+=(--filter "$TEST_FILTER")
+          fi
+          dotnet test "$SOLUTION_PATH" "${arguments[@]}"
+
+      - name: Verify formatting
+        id: format
+        if: inputs.enforce-format
+        run: dotnet format "$SOLUTION_PATH" --verify-no-changes --no-restore
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-results
+          path: ${{ env.TEST_RESULTS_DIRECTORY }}/*.trx
+          if-no-files-found: warn
+
+      - name: Write summary
+        if: always()
+        env:
+          RESTORE_OUTCOME: ${{ steps.restore.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+          FORMAT_OUTCOME: ${{ inputs.enforce-format && steps.format.outcome || 'not enforced' }}
+        run: |
+          echo "Pull request checks for \`$SOLUTION_PATH\`: restore ${RESTORE_OUTCOME:-skipped}, build ${BUILD_OUTCOME:-skipped}, test ${TEST_OUTCOME:-skipped}, format ${FORMAT_OUTCOME:-skipped}." >> "$GITHUB_STEP_SUMMARY"
