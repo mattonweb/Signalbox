@@ -73,7 +73,7 @@ git show-ref --quiet feature/county-export-endpoint && echo "name exists"   # mu
 git switch -c feature/county-export-endpoint
 # ... work, commit in the house form ...
 git push -u origin feature/county-export-endpoint
-# open a draft pull request; mark ready when complete (auto-complete only once the pipeline mergesly once the pipeline merges)
+# open a draft pull request; mark ready when complete (auto-complete only once the pipeline merges)
 # after the merge:
 git switch main
 git pull --ff-only
