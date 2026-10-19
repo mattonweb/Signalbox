@@ -2,7 +2,7 @@
 name: devops-git-conventions
 description: Git conventions for every repository that adopts this skill. Use whenever creating a branch, writing or reviewing a commit message, drafting a commit message for someone else to commit, opening or reviewing a pull request, or tagging a release. Covers the trunk-based workflow, branch naming, Conventional Commits with the type table and the 72-character subject rule, the verification line every commit body carries, pull-request title and description, merge by merge commit, and the tag and version format. A pipeline tags every merge and builds once from the tag; this skill states the half a person has to get right before the pipeline sees it.
 owner: Matt
-version: 1.0.3
+version: 1.0.4
 visibility: public
 ---
 

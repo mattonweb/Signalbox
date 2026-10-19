@@ -65,6 +65,7 @@ With the GitHub CLI, for instance (other hosts have the same two steps under oth
 ```
 gh pr create --draft --base main --title "feat(catalog): add the county export endpoint" --body-file pr.md
 gh pr ready            # when the branch is complete and the checks are green
+gh pr edit --add-reviewer <owner>   # the code owner from .github/CODEOWNERS; not every host plan requests one for you
 ```
 
 ## 5. Merging

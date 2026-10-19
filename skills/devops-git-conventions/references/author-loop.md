@@ -33,10 +33,11 @@ repository and the disagreement is reported in the next hand-back.
    request, not only the first one listed.
 7. **Read the review**: `gh pr view <number> --comments`. A red check or a requested change is yours: fix it, commit,
    push the same branch (never force), and the checks run again.
-8. **When the work is complete and the checks are green, mark it ready**: `gh pr ready <number>`. A draft requests
-   no reviewer; marking it ready is the moment the repository's code owner is asked for review, so nobody sees the
-   pull request until this step. Then hand back on the hub, naming the pull request number, the branch, and the
-   build and test counts before and after.
+8. **When the work is complete and the checks are green, mark it ready and request the code owner**: `gh pr ready
+   <number>`, then `gh pr edit <number> --add-reviewer <owner>`, with the owner read from `.github/CODEOWNERS`.
+   A draft requests no reviewer, and marking it ready requests one automatically only where the host enforces code
+   owners for that repository — not every plan does for private repositories — so make the request yourself. Then
+   hand back on the hub, naming the pull request number, the branch, and the build and test counts before and after.
 9. **After the merge** (you learn of it on the hub or by `gh pr view`): `git fetch --prune origin`, `git checkout
    main`, `git pull --ff-only`, then `git branch -d feature/<topic>`, which deletes only a branch that is fully
    merged. The remote branch is deleted by the person who merges.
