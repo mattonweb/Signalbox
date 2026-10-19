@@ -51,8 +51,10 @@ every new pull request with it, which is the tool enforcing the shape so the rev
 - Everything the pull request should carry is committed and pushed first. `git status --porcelain` prints
   nothing, and the branch's tip is on the host. Uncommitted work is not in the pull request, whatever the
   description says.
-- Open as a **draft** with auto-complete (auto-merge) on. The pipeline's pull-request checks run on every push
-  to the branch; when they pass and the review is in, the merge happens without a second step.
+- Open as a **draft**. The pipeline's pull-request checks run on every push to the branch. Auto-complete
+  (auto-merge) is turned on only once the pipeline's merge lane owns merging, so that the merge happens without a
+  second step when the checks pass and the review is in; until then a person merges, and a coding agent never
+  enables it.
 - Mark ready for review when the branch is complete, not when it is started. A draft is the signal that the
   checks may still be red.
 - A pull request into a public repository passes whatever content scan the repository runs before it

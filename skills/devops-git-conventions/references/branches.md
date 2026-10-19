@@ -55,7 +55,8 @@ Where a repository's default branch has another name, read `main` here as that b
   documentation change. The *commits* carry the type; the branch prefix stays `feature/` whatever they are.
 - Merges to `main` by one pull request, by merge commit, and is deleted after.
 - Lives days. If it cannot merge in days it is carrying more than one change: split it.
-- To bring it up to date when the pull request cannot merge cleanly, merge `main` into it. Never rebase a
+- To bring it up to date when the pull request cannot merge cleanly, merge `main` into it (a person's act until
+  the pipeline's merge lane exists; a coding agent hands the branch back instead, see `author-loop.md`). Never rebase a
   pushed branch, never amend a pushed commit, and never force-push: all three rewrite history someone else
   may already hold. A mistake in a pushed commit is fixed by a new commit. Before the first push the history
   is yours alone: reordering, squashing a fix into the commit it fixes, or rewording there is fine.
@@ -72,7 +73,7 @@ git show-ref --quiet feature/county-export-endpoint && echo "name exists"   # mu
 git switch -c feature/county-export-endpoint
 # ... work, commit in the house form ...
 git push -u origin feature/county-export-endpoint
-# open a draft pull request with auto-complete on; mark ready when complete
+# open a draft pull request; mark ready when complete (auto-complete only once the pipeline merges)
 # after the merge:
 git switch main
 git pull --ff-only

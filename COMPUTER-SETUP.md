@@ -167,6 +167,12 @@ block in its `.claude/settings.json`, which REPO-SETUP.md describes; a session w
 in the same folder, keep the person's own identity. Full design and the trust boundary in
 `tools/agent-git-credential/README.md`.
 
+⚠ **PowerShell and the `gh` shim.** Git Bash puts `~/bin` first on its path, so `gh` there is the shim. The system
+path puts the GitHub CLI's own folder ahead of anything per user, so `gh` from PowerShell is the bare CLI and asks to
+log in. Agents are told to run `gh` from the Bash tool. To make PowerShell behave the same on a machine, remove
+`C:\Program Files\GitHub CLI\` from the *machine* PATH (the shims call the CLI by its full path and do not need it
+there) and add `%USERPROFILE%in` to the *user* PATH, so `gh.ps1` resolves; both are one-time, elevated edits.
+
 Verify: in a session that carries the env block, `git push --dry-run` on a feature branch authenticates as the app,
 and `gh api user --jq .login` prints the app's bot login. In a plain terminal in the same folder, `gh api user --jq
 .login` prints your own.

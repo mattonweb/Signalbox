@@ -2,7 +2,7 @@
 name: devops-git-conventions
 description: Git conventions for every repository that adopts this skill. Use whenever creating a branch, writing or reviewing a commit message, drafting a commit message for someone else to commit, opening or reviewing a pull request, or tagging a release. Covers the trunk-based workflow, branch naming, Conventional Commits with the type table and the 72-character subject rule, the verification line every commit body carries, pull-request title and description, merge by merge commit, and the tag and version format. A pipeline tags every merge and builds once from the tag; this skill states the half a person has to get right before the pipeline sees it.
 owner: Matt
-version: 1.0.2
+version: 1.0.3
 visibility: public
 ---
 
@@ -24,7 +24,8 @@ who may commit or push; that is each repository's working agreement.
   more than one change. Incomplete work that must ship reaches `main` behind a feature flag, not on a branch
   that waits for weeks. Where a repository's default branch has another name, read `main` as that branch.
 - Nothing is merged *into* a feature branch to bring it up to date except `main` itself, and only when the
-  pull request cannot merge cleanly.
+  pull request cannot merge cleanly. Until the pipeline's merge lane exists, that merge is a person's act: a coding
+  agent hands a conflicting branch back rather than merging `main` into it (`references/author-loop.md`).
 - There are two kinds of branch beyond `main` (section 2) and, as an option for keeping one shipped release
   patchable, a release branch (section 2.3).
 
@@ -81,8 +82,10 @@ Full form in `references/pull-requests.md`.
 
 - One branch, one topic, one pull request. Title in commit-subject form, at most 72 characters.
 - Description in four parts: why, what, verification, follow-ups.
-- Opened as a draft with auto-complete on, from a fully committed and pushed branch; marked ready when
-  complete. `assets/pull-request-template.md` gives the host the four headings to pre-fill.
+- Opened as a draft from a fully committed and pushed branch; marked ready when complete.
+  `assets/pull-request-template.md` gives the host the four headings to pre-fill. Auto-complete (auto-merge) is
+  turned on only once the pipeline's merge lane owns merging; until then a person merges, and a coding agent
+  never enables it.
 - Merged by merge commit, never squash, never rebase. The merge commit is the host's and is the one commit
   on `main` exempt from the message form.
 - Branch deleted after merge.
@@ -123,7 +126,17 @@ enforceable at commit time on the committer's machine; the rest need a reviewer.
   or pass, nothing else.
 - `--no-verify` is not a workflow. A hook that is wrong is fixed; a hook that is right is obeyed.
 
-## 7. Review checklist
+## 7. The author loop for coding agents
+
+A coding agent that holds a GitHub App identity delivers every change by the loop in
+`references/author-loop.md`: start from `main`, branch, commit in the house form, build and test, push and open a
+draft pull request with `gh`, wait for the checks once, mark ready, hand back, and after the merge return to
+`main`. That reference is the agent's working agreement; a repository's `CLAUDE.md` points at it and adds only the
+repository's own facts (its app, what a merge changes downstream, whether `main` is protected yet). The reference
+also carries the practicalities earlier runs taught, so a lesson is written once and reaches every agent by
+junction.
+
+## 8. Review checklist
 
 A reviewer answers each of these on the thing in front of them.
 
