@@ -154,8 +154,11 @@ with no master password, keyed by a random secret that Windows data protection t
 there is none yet. It changes no git configuration.
 
 Then, for each repository whose agent gets an identity: create a GitHub App on the owning account (one per
-repository, installed on that repository only, with Contents and Pull requests read and write and nothing else),
-download its private key, and register it:
+repository, installed on that repository only) with exactly these repository permissions: **Contents** read and
+write, **Pull requests** read and write, **Checks** read-only, **Actions** read-only, and nothing else. Checks read is
+what lets `gh pr checks` see a private repository's check runs (a public repository serves them to anyone, which
+is why the first app worked without it); Actions read lets the agent open a red run's log. Download the app's
+private key, and register it:
 
 ```bash
 ~/bin/agent-git-credential/git-credential-github-app.exe set --repository owner/name --app-id N --installation-id N --private-key-file ~/Downloads/the-key.pem
@@ -171,7 +174,7 @@ in the same folder, keep the person's own identity. Full design and the trust bo
 path puts the GitHub CLI's own folder ahead of anything per user, so `gh` from PowerShell is the bare CLI and asks to
 log in. Agents are told to run `gh` from the Bash tool. To make PowerShell behave the same on a machine, remove
 `C:\Program Files\GitHub CLI\` from the *machine* PATH (the shims call the CLI by its full path and do not need it
-there) and add `%USERPROFILE%in` to the *user* PATH, so `gh.ps1` resolves; both are one-time, elevated edits.
+there) and add `%USERPROFILE%\bin` to the *user* PATH, so `gh.ps1` resolves; both are one-time, elevated edits.
 
 Verify: in a session that carries the env block, `git push --dry-run` on a feature branch authenticates as the app,
 and `gh api user --jq .login` prints the app's bot login. In a plain terminal in the same folder, `gh api user --jq
