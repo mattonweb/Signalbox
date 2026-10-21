@@ -9,7 +9,7 @@ app's private key held in a KeePass database keyed to the Windows user account a
 | Piece | What it is | Where it lands |
 |---|---|---|
 | `src/AgentGitCredential` | the helper: .NET 10, standard library plus KeePassLib | `~/bin/agent-git-credential/git-credential-github-app.exe` |
-| `src/AgentGitCredential.Test.Unit` | 31 MSTest tests: parsing, the JSON Web Token, the cache, the KeePass store, the dispatcher | not installed |
+| `src/AgentGitCredential.Test.Unit` | 45 MSTest tests: parsing, aliases, the JSON Web Token, the cache, the KeePass store, the dispatcher | not installed |
 | `gh`, `gh.ps1` | shims that run the real GitHub CLI with the repository's app token when the session is an agent's | `~/bin/gh`, `~/bin/gh.ps1` |
 | `install.sh` | publishes the helper, places the shims, creates the database | run from the repo root |
 
@@ -58,6 +58,24 @@ git-credential-github-app list
 
 `set` reads the private key from the file GitHub downloaded and writes it into the database; the key is never
 passed on a command line. Delete the `.pem` afterwards.
+
+### One repository, several apps: aliases
+
+The database holds one entry per title, and the title is the repository. When two sessions must act on the same
+repository as different apps, the second app is registered under the same repository with a `#key` suffix on
+the name, and the session that uses it says so in one environment variable:
+
+```
+git-credential-github-app set --repository mattonweb/agent-technology-build-plans#cdo --app-id N --installation-id N --private-key-file path.pem
+AGENT_GIT_REPOSITORY_ALIASES=mattonweb/agent-technology-build-plans=mattonweb/agent-technology-build-plans#cdo
+```
+
+The variable is a `;`-separated list of `owner/name=owner/name#key` pairs. Both `get` (what git calls) and
+`token` (what the `gh` shim calls) resolve the alias before looking up the registration, so the shim needs no
+change. A repository that is not in the map resolves to itself; a repository aliased twice is refused. The
+variable goes in the session's `env` block beside `AGENT_GIT_IDENTITY`, and a session without it sees the plain
+entry. First use: a leader's home whose nested clone of the plans repository must push as that leader's app
+while the plain entry belongs to another leader.
 
 ## Build and test
 

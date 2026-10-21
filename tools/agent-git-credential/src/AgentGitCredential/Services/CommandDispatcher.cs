@@ -19,6 +19,7 @@ public sealed class CommandDispatcher
 
     private readonly RegistrationStore _registrations;
     private readonly TokenProvider _tokens;
+    private readonly RepositoryAliases _aliases;
     private readonly TextReader _input;
     private readonly TextWriter _output;
 
@@ -27,16 +28,19 @@ public sealed class CommandDispatcher
     /// </summary>
     /// <param name="registrations">The app registrations.</param>
     /// <param name="tokens">Supplies tokens.</param>
+    /// <param name="aliases">Which registration answers for a repository in this session.</param>
     /// <param name="input">Standard input, where git writes its request.</param>
     /// <param name="output">Standard output, where git reads the answer.</param>
-    public CommandDispatcher(RegistrationStore registrations, TokenProvider tokens, TextReader input, TextWriter output)
+    public CommandDispatcher(RegistrationStore registrations, TokenProvider tokens, RepositoryAliases aliases, TextReader input, TextWriter output)
     {
         ArgumentNullException.ThrowIfNull(registrations);
         ArgumentNullException.ThrowIfNull(tokens);
+        ArgumentNullException.ThrowIfNull(aliases);
         ArgumentNullException.ThrowIfNull(input);
         ArgumentNullException.ThrowIfNull(output);
         this._registrations = registrations;
         this._tokens = tokens;
+        this._aliases = aliases;
         this._input = input;
         this._output = output;
     }
@@ -56,7 +60,8 @@ public sealed class CommandDispatcher
         TokenCache cache = new TokenCache(location, timeProvider);
         InstallationTokenClient client = new InstallationTokenClient(httpClient, new JsonWebTokenBuilder(timeProvider));
         TokenProvider tokens = new TokenProvider(registrations, cache, client);
-        return new CommandDispatcher(registrations, tokens, input, output);
+        RepositoryAliases aliases = RepositoryAliases.Parse(Environment.GetEnvironmentVariable(RepositoryAliases.VariableName));
+        return new CommandDispatcher(registrations, tokens, aliases, input, output);
     }
 
     /// <summary>
@@ -108,7 +113,7 @@ public sealed class CommandDispatcher
             return 0;
         }
 
-        InstallationToken? token = await this._tokens.GetTokenAsync(repository.Value).ConfigureAwait(false);
+        InstallationToken? token = await this._tokens.GetTokenAsync(this._aliases.Resolve(repository.Value)).ConfigureAwait(false);
         if (token is null)
         {
             return 0;
@@ -121,7 +126,7 @@ public sealed class CommandDispatcher
 
     private async Task<int> TokenAsync(CommandArguments arguments)
     {
-        RepositoryName repository = RepositoryNameParser.ParseSlug(arguments.Require("repository"));
+        RepositoryName repository = this._aliases.Resolve(RepositoryNameParser.ParseSlug(arguments.Require("repository")));
         InstallationToken? token = await this._tokens.GetTokenAsync(repository).ConfigureAwait(false);
         if (token is null)
         {
@@ -172,6 +177,7 @@ public sealed class CommandDispatcher
         this._output.WriteLine("  init                                                  create the registration database for this Windows user");
         this._output.WriteLine("  set --repository owner/name --app-id N --installation-id N --private-key-file path.pem");
         this._output.WriteLine("  list                                                  the repositories with a registered app");
+        this._output.WriteLine("  " + RepositoryAliases.VariableName + "=owner/name=owner/name#key;...   which registration answers for a repository in this session");
         return 2;
     }
 }
