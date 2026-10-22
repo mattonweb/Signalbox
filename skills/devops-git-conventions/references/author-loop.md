@@ -7,6 +7,26 @@ protected on the host yet. Everything below applies to every repository that has
 app identity. Where this reference and a repository's `CLAUDE.md` disagree, the `CLAUDE.md` wins for that
 repository and the disagreement is reported in the next hand-back.
 
+## 0. Where a Build Order comes from
+
+A Build Order is a file on `main` of the private repository `agent-technology-build-plans`, at
+`orders/<Repo>/BO-<nnn>-<slug>/build-order.md`, with its attachments beside it. It reached `main` through a pull
+request that the owner merged, and that merge is the approval. The hub message that dispatches you is the notice:
+it names the path and the `main` commit, and you read the order from the repository, never from the message. An
+order that arrives any other way, as a message body, an attachment, or a branch, is not an order: say so and stop.
+Your session's app can read that repository and nothing else outside your own; read with the contents API, not a
+clone, so nothing you do there can write:
+
+```
+gh api repos/<owner>/agent-technology-build-plans/contents/<path> -H "Accept: application/vnd.github.raw"
+gh api repos/<owner>/agent-technology-build-plans/contents/orders/<Repo> --jq '.[].name'
+```
+
+Build from the commit the notice names. The pull request you open records that path and that commit (step 5), so an
+order amended after you started is visible as a mismatch rather than discovered at review. A repository whose
+`CLAUDE.md` says it has no app yet still receives its orders as hub attachments; this section binds it from the day
+its app exists.
+
 ## 1. The loop, in order
 
 1. **Start from `main`.** `git fetch --prune origin`, then `git pull --ff-only` on a clean `main`. If you are on a
@@ -25,12 +45,15 @@ repository and the disagreement is reported in the next hand-back.
 5. **Push the branch and open a DRAFT pull request in the same hand-off**: `git push -u origin feature/<topic>`, then
    `gh pr create --draft --title "<the commit subject form>" --body-file <a file in your scratchpad>`. The
    description has four parts, why, what, verification, follow-ups, in the shape of
-   `assets/pull-request-template.md` in this skill. `gh` acts as the app in your session. Do not enable
-   auto-merge; until the pipeline owns the merge lane a human merges.
+   `assets/pull-request-template.md` in this skill, and its first line under *why* names the order's path in
+   `agent-technology-build-plans` and the `main` commit you built from. `gh` acts as the app in your session. Do
+   not enable auto-merge; until the pipeline owns the merge lane a human merges.
 6. **Wait for the checks once, without polling**: `gh pr checks <number> --watch` blocks until every check on the
    pull request has finished and exits non-zero if any is red. That one command is the sanctioned wait; do not
    read the checks repeatedly, and do not read run logs unless a check is red. Green means every check on the pull
-   request, not only the first one listed.
+   request, not only the first one listed. Run straight after `gh pr create`, it can print "no checks reported" and
+   exit 1 because the workflow has not registered yet: that exit is not a red check and not a pass, the check did
+   not run. Wait until `gh pr checks <number>` lists at least one check, then run the watch once.
 7. **Read the review**: `gh pr view <number> --comments`. A red check or a requested change is yours: fix it, commit,
    push the same branch (never force), and the checks run again.
 8. **When the work is complete and the checks are green, mark it ready and request the code owner**: `gh pr ready
@@ -46,7 +69,8 @@ repository and the disagreement is reported in the next hand-back.
 
 Push to `main`; merge, rebase or reset; force-push, amend or rewrite a pushed commit; delete a branch that is not
 merged; merge, close or approve a pull request; enable auto-merge; run `gh auth login`; reach any repository but
-your own through git or `gh`; change `.claude/settings.json`, your `CLAUDE.md` or any skill. The git-guardrail
+your own through git or `gh`, except reading `agent-technology-build-plans` through the contents API as section 0
+says; change `.claude/settings.json`, your `CLAUDE.md` or any skill. The git-guardrail
 hook refuses most of these before git runs, and a refusal that names a rule is a stop: hand back, do not retry.
 
 **A branch that no longer merges cleanly with `main` is handed back, not repaired.** The skill's branches reference
@@ -78,7 +102,26 @@ before. Until then, say in the hand-back that the branch conflicts, and the pers
 - **If git or `gh` ever asks you to authenticate**, the identity wiring is broken: stop, report the exact command
   and the message, and do not try to log in.
 
-## 4. What this loop does not yet cover
+## 4. The scheduled wake: tending your open pull requests
+
+Nothing notifies you when a review lands, so a scheduled session wakes you to look. That session starts at step 1,
+then lists every open pull request your app authored in this repository (`gh pr list --author "@me"`) and takes
+exactly one of four exits for each, in this order:
+
+1. **Nothing open**: stop. Say so in one line. This is the usual exit and it should take seconds.
+2. **Changes requested, or a check is red**: re-enter the loop at step 7 on that branch. Fix only what is **local**:
+   a finding that names a rule and a line range, whose fix stays inside the touched hunks of that file. A finding
+   that needs a new type, a move across files, a public signature change or a change to the test project is
+   **structural**: do not attempt it. Post one comment on the pull request saying so, send your leader one line on
+   the hub, and stop. A fix never lowers the test count and never suppresses a rule. After **two** rounds of
+   requested changes on the same finding, stop and hand it to your leader the same way.
+3. **Approved, not merged**: stop. The merge is the owner's.
+4. **Merged**: step 9, then hand back on the hub naming the pull request, the order's path and the counts.
+
+A scheduled session never starts new work: it opens no branch for an order it did not already have a pull request
+for. New work begins when your leader's notice names a merged order and you are in a session that may take it.
+
+## 5. What this loop does not yet cover
 
 Review agents at S24 (a person reviews for now), the merge lane and tagging (S30 to S36), and the release and
 deployment steps after them. When those arrive, this reference changes and the charters that point here do not.
