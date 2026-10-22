@@ -103,6 +103,77 @@ public sealed class CommandDispatcherTests
         }
     }
 
+    /// <summary>With an alias set, a get for the aliased repository answers with the alias target's token.</summary>
+    /// <returns>A task.</returns>
+    [TestMethod]
+    public async Task RunAsync_GetForAliasedRepository_UsesTargetRegistration()
+    {
+        using (TemporaryStore store = new TemporaryStore())
+        {
+            RegistrationStore registrations = Registered(store, new RepositoryName("mattonweb", "agent-technology-build-plans#cdo"));
+            Mock<IInstallationTokenClient> client = new Mock<IInstallationTokenClient>();
+            client.Setup(c => c.MintAsync(It.IsAny<AppRegistration>(), It.IsAny<CancellationToken>())).ReturnsAsync(new InstallationToken("ghs_cdo", Now.AddHours(1)));
+            RepositoryAliases aliases = RepositoryAliases.Parse("mattonweb/agent-technology-build-plans=mattonweb/agent-technology-build-plans#cdo");
+            using (StringReader input = new StringReader("protocol=https\nhost=github.com\npath=mattonweb/agent-technology-build-plans.git\n\n"))
+            using (StringWriter output = new StringWriter())
+            {
+                CommandDispatcher dispatcher = Dispatcher(store, registrations, aliases, client.Object, input, output);
+
+                int exitCode = await dispatcher.RunAsync(["get"]).ConfigureAwait(false);
+
+                Assert.AreEqual(0, exitCode);
+                Assert.AreEqual("username=x-access-token" + Environment.NewLine + "password=ghs_cdo" + Environment.NewLine, output.ToString());
+            }
+        }
+    }
+
+    /// <summary>With an alias set, a get for the aliased repository ignores a registration under the plain title.</summary>
+    /// <returns>A task.</returns>
+    [TestMethod]
+    public async Task RunAsync_GetForAliasedRepository_IgnoresPlainRegistration()
+    {
+        using (TemporaryStore store = new TemporaryStore())
+        {
+            RegistrationStore registrations = Registered(store, new RepositoryName("mattonweb", "agent-technology-build-plans"));
+            Mock<IInstallationTokenClient> client = new Mock<IInstallationTokenClient>(MockBehavior.Strict);
+            RepositoryAliases aliases = RepositoryAliases.Parse("mattonweb/agent-technology-build-plans=mattonweb/agent-technology-build-plans#cdo");
+            using (StringReader input = new StringReader("protocol=https\nhost=github.com\npath=mattonweb/agent-technology-build-plans.git\n\n"))
+            using (StringWriter output = new StringWriter())
+            {
+                CommandDispatcher dispatcher = Dispatcher(store, registrations, aliases, client.Object, input, output);
+
+                int exitCode = await dispatcher.RunAsync(["get"]).ConfigureAwait(false);
+
+                Assert.AreEqual(0, exitCode);
+                Assert.AreEqual(string.Empty, output.ToString());
+            }
+        }
+    }
+
+    /// <summary>The token command resolves the alias the same way, so the gh shim needs no change.</summary>
+    /// <returns>A task.</returns>
+    [TestMethod]
+    public async Task RunAsync_TokenForAliasedRepository_PrintsTargetToken()
+    {
+        using (TemporaryStore store = new TemporaryStore())
+        {
+            RegistrationStore registrations = Registered(store, new RepositoryName("mattonweb", "agent-technology-build-plans#cdo"));
+            Mock<IInstallationTokenClient> client = new Mock<IInstallationTokenClient>();
+            client.Setup(c => c.MintAsync(It.IsAny<AppRegistration>(), It.IsAny<CancellationToken>())).ReturnsAsync(new InstallationToken("ghs_cdo", Now.AddHours(1)));
+            RepositoryAliases aliases = RepositoryAliases.Parse("mattonweb/agent-technology-build-plans=mattonweb/agent-technology-build-plans#cdo");
+            using (StringReader input = new StringReader(string.Empty))
+            using (StringWriter output = new StringWriter())
+            {
+                CommandDispatcher dispatcher = Dispatcher(store, registrations, aliases, client.Object, input, output);
+
+                int exitCode = await dispatcher.RunAsync(["token", "--repository", "mattonweb/agent-technology-build-plans"]).ConfigureAwait(false);
+
+                Assert.AreEqual(0, exitCode);
+                Assert.AreEqual("ghs_cdo" + Environment.NewLine, output.ToString());
+            }
+        }
+    }
+
     private static RegistrationStore Registered(TemporaryStore store, RepositoryName repository)
     {
         RegistrationStore registrations = new RegistrationStore(store.Location, new PasswordKeySource());
@@ -119,8 +190,13 @@ public sealed class CommandDispatcherTests
 
     private static CommandDispatcher Dispatcher(TemporaryStore store, RegistrationStore registrations, IInstallationTokenClient client, TextReader input, TextWriter output)
     {
+        return Dispatcher(store, registrations, RepositoryAliases.None, client, input, output);
+    }
+
+    private static CommandDispatcher Dispatcher(TemporaryStore store, RegistrationStore registrations, RepositoryAliases aliases, IInstallationTokenClient client, TextReader input, TextWriter output)
+    {
         TokenCache cache = new TokenCache(store.Location, new FixedTimeProvider(Now));
         TokenProvider tokens = new TokenProvider(registrations, cache, client);
-        return new CommandDispatcher(registrations, tokens, input, output);
+        return new CommandDispatcher(registrations, tokens, aliases, input, output);
     }
 }

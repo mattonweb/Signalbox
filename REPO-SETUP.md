@@ -166,6 +166,10 @@ The block holds no secret and is committed, public repositories included.
 A repository with the block but no registered app cannot push at all, which is the intended failure: no borrowed
 identity. Remove the block and the session is back to the person's own credentials.
 
+When a session must act on some other repository as a different app than the one registered under that
+repository's plain title, add `"AGENT_GIT_REPOSITORY_ALIASES": "owner/name=owner/name#key"` to the block and
+register the second app under the `#key` title; the helper's README explains the form.
+
 The helper keys on the repository path git passes it, which comes from the checkout's `origin` URL. **If `origin`
 still names an old owner or an old repository name that GitHub redirects, the helper looks up the old name, finds no
 registration, and offers nothing**; git then fails with `could not read Username`, which reads like a permission
