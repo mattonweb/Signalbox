@@ -1,0 +1,126 @@
+# Pipeline steps S40 to S44: a tag event fires, the artifact is built ONCE from the tag, and it is published as
+# an immutable GitHub release whose assets are the zip and its SHA-256 checksum.
+#
+# A reusable workflow. Nothing in this repository triggers it; a product repository calls it from its own
+# .github/workflows/build-release.yml on a tag push, pinned to a version tag of this repository. The tag is
+# created by Switchyard at a leader's request, so a release here means "requested for deployment", never
+# "merged". The public contract is docs/reusable-build-release.md.
+
+name: Reusable build release
+
+on:
+  workflow_call:
+    inputs:
+      project-path:
+        description: Path to the deployable project file, relative to the repository root. Passed to dotnet publish as one argument, so a path with spaces needs no extra quoting.
+        type: string
+        required: true
+      artifact-name:
+        description: The asset file stem. The zip is <artifact-name>-<tag>.zip and the checksum file is that name plus .sha256.
+        type: string
+        required: true
+      dotnet-version:
+        description: The .NET SDK version to install, in any form actions/setup-dotnet accepts.
+        type: string
+        default: 10.0.x
+      configuration:
+        description: The build configuration passed to dotnet publish.
+        type: string
+        default: Release
+      runs-on:
+        description: The runner label. A caller whose code needs Windows passes windows-latest.
+        type: string
+        default: ubuntu-latest
+      stamp-version:
+        description: When true, the tag is written into the assemblies as InformationalVersion so a running site can report which release it is.
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-reusable-build-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    runs-on: ${{ inputs.runs-on }}
+    env:
+      PROJECT_PATH: ${{ inputs.project-path }}
+      ARTIFACT_NAME: ${{ inputs.artifact-name }}
+      CONFIGURATION: ${{ inputs.configuration }}
+      STAMP_VERSION: ${{ inputs.stamp-version }}
+      PUBLISH_DIRECTORY: publish
+      TAG: ${{ github.ref_name }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Require a tag
+        if: github.ref_type != 'tag'
+        run: |
+          echo "This workflow builds from a tag and was started from ${GITHUB_REF}. Call it from a push to a tag." >&2
+          exit 1
+
+      - name: Check out the tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET ${{ inputs.dotnet-version }}
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
+      - name: Restore
+        id: restore
+        run: dotnet restore "$PROJECT_PATH"
+
+      - name: Publish
+        id: publish
+        run: |
+          arguments=(--no-restore --configuration "$CONFIGURATION" --output "$PUBLISH_DIRECTORY" --self-contained false)
+          if [ "$STAMP_VERSION" = "true" ]; then
+            arguments+=("-p:InformationalVersion=$TAG")
+          fi
+          dotnet publish "$PROJECT_PATH" "${arguments[@]}"
+
+      - name: Package
+        id: package
+        run: |
+          zip_name="$ARTIFACT_NAME-$TAG.zip"
+          (cd "$PUBLISH_DIRECTORY" && zip -q -r -X "../$zip_name" .)
+          sha256sum "$zip_name" > "$zip_name.sha256"
+          digest="$(cut -d ' ' -f 1 "$zip_name.sha256")"
+          echo "zip-name=$zip_name" >> "$GITHUB_OUTPUT"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "Packaged $zip_name ($(stat -c %s "$zip_name") bytes), sha256 $digest"
+
+      - name: Publish the release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ZIP_NAME: ${{ steps.package.outputs.zip-name }}
+          DIGEST: ${{ steps.package.outputs.digest }}
+        run: |
+          notes="Built once from tag $TAG at commit $GITHUB_SHA by the shared build-release workflow."$'\n'"Asset sha256: $DIGEST"
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft --prerelease --title "$TAG" --notes "$notes" --verify-tag
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" "$ZIP_NAME" "$ZIP_NAME.sha256"
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+          echo "url=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url -q .url)" >> "$GITHUB_OUTPUT"
+
+      - name: Write summary
+        if: always()
+        env:
+          RESTORE_OUTCOME: ${{ steps.restore.outcome }}
+          PUBLISH_OUTCOME: ${{ steps.publish.outcome }}
+          PACKAGE_OUTCOME: ${{ steps.package.outcome }}
+          RELEASE_OUTCOME: ${{ steps.release.outcome }}
+          DIGEST: ${{ steps.package.outputs.digest }}
+          RELEASE_URL: ${{ steps.release.outputs.url }}
+        run: |
+          echo "Build release \`$TAG\` for \`$PROJECT_PATH\`: restore ${RESTORE_OUTCOME:-skipped}, publish ${PUBLISH_OUTCOME:-skipped}, package ${PACKAGE_OUTCOME:-skipped}, release ${RELEASE_OUTCOME:-skipped}." >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$DIGEST" ]; then echo "Asset sha256: \`$DIGEST\`" >> "$GITHUB_STEP_SUMMARY"; fi
+          if [ -n "$RELEASE_URL" ]; then echo "Release: $RELEASE_URL" >> "$GITHUB_STEP_SUMMARY"; fi
