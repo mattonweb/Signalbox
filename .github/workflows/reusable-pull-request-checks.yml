@@ -93,6 +93,7 @@ jobs:
           name: test-results
           path: ${{ env.TEST_RESULTS_DIRECTORY }}/*.trx
           if-no-files-found: warn
+          retention-days: 7
 
       - name: Write summary
         if: always()
