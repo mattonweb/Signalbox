@@ -54,7 +54,8 @@ workflow's name plus `github.ref`. A caller should not set a concurrency group o
 - **The summary line.** One line on the run's summary page, for example:
   `Pull request checks for src/MyApp.slnx: restore success, build success, test failure, format not enforced.`
   Each outcome is `success`, `failure`, `cancelled` or `skipped`.
-- **The `test-results` artifact.** The `.trx` files from `dotnet test`, uploaded even when tests fail. It is
+- **The `test-results` artifact.** The `.trx` files from `dotnet test`, uploaded even when tests fail and kept
+  for seven days, since nothing reads them after the run and artifact storage is metered per account. It is
   missing, with a warning, when the run stopped before the tests ran.
 
 ## Caller
