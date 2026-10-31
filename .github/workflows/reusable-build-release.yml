@@ -40,6 +40,14 @@ on:
         description: When true, the tag is written into the assemblies as InformationalVersion so a running site can report which release it is.
         type: boolean
         default: true
+      self-contained:
+        description: When true, dotnet publish bundles the .NET runtime into the output, for a machine with no runtime installed (a Windows service on a bare VPS). Needs runtime.
+        type: boolean
+        default: false
+      runtime:
+        description: The runtime identifier for a self-contained publish, for example win-x64. Required when self-contained is true; ignored otherwise.
+        type: string
+        default: ""
     outputs:
       tag:
         description: The tag the release was created under, <YYYY.MMdd>.<run number>.
@@ -67,6 +75,8 @@ jobs:
       TIME_ZONE: ${{ inputs.time-zone }}
       CONFIGURATION: ${{ inputs.configuration }}
       STAMP_VERSION: ${{ inputs.stamp-version }}
+      SELF_CONTAINED: ${{ inputs.self-contained }}
+      RUNTIME: ${{ inputs.runtime }}
       PUBLISH_DIRECTORY: publish
       RUN_NUMBER: ${{ github.run_number }}
     defaults:
@@ -97,14 +107,28 @@ jobs:
 
       - name: Restore
         id: restore
-        run: dotnet restore "$PROJECT_PATH"
+        run: |
+          if [ "$SELF_CONTAINED" = "true" ]; then
+            if [ -z "$RUNTIME" ]; then
+              echo "self-contained is true but runtime is empty; pass the runtime identifier, for example win-x64." >&2
+              exit 1
+            fi
+            dotnet restore "$PROJECT_PATH" --runtime "$RUNTIME"
+          else
+            dotnet restore "$PROJECT_PATH"
+          fi
 
       - name: Publish
         id: publish
         env:
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          arguments=(--no-restore --configuration "$CONFIGURATION" --output "$PUBLISH_DIRECTORY" --self-contained false)
+          arguments=(--no-restore --configuration "$CONFIGURATION" --output "$PUBLISH_DIRECTORY")
+          if [ "$SELF_CONTAINED" = "true" ]; then
+            arguments+=(--self-contained true --runtime "$RUNTIME")
+          else
+            arguments+=(--self-contained false)
+          fi
           if [ "$STAMP_VERSION" = "true" ]; then
             arguments+=("-p:InformationalVersion=$TAG")
           fi
