@@ -2,7 +2,7 @@
 name: code-csharp-standards
 description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behavior classes versus data types) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
 owner: Matt
-version: 1.1.2
+version: 1.1.3
 visibility: public
 ---
 
@@ -113,6 +113,37 @@ method body. Sections 4 and 6 apply to them and not to data.
 An orchestrator, service or repository exposes no public getter or setter. Its dependencies are `private readonly`
 fields, or `private` and `protected` get-only properties over them in the Roadbed base-class pattern. On
 2026-10-04 zero of the 983 behavior classes violated this; the rule keeps it so.
+
+**Razor `PageModel`s and controllers** are framework-bound classes (code-software-standards 4.1): model binding
+writes to them and the view reads from them. The house shape, which Pebble's Add and Edit pages set, is one
+`[BindProperty]` holding a nested data type, read-side properties with `private set`, and the services and
+handlers private. The bound member's public setter and the read side's `private set` are the only departures from
+4.4 this shape takes.
+
+```csharp
+// ✅ One bound data type; the view reads through private set; behavior stays private.
+public sealed class AddModel : PageModel
+{
+    private readonly CampaignService _service;
+
+    [BindProperty]
+    public InputModel Input { get; set; } = new InputModel();
+
+    public IReadOnlyList<Subscription> SubscriptionOptions { get; private set; } = Array.Empty<Subscription>();
+
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken) { /* reads this.Input */ }
+
+    public sealed class InputModel
+    {
+        [Required]
+        public string DisplayName { get; set; } = string.Empty;
+    }
+}
+
+// ❌ Bound scalars on the page model itself.
+[BindProperty]
+public string DisplayName { get; set; } = string.Empty;
+```
 
 ### 4.2 A state transition with a rule lives in exactly one named method
 
@@ -464,7 +495,7 @@ to a build error in one repo.
 1. **NEVER** use `var`.
 2. **NEVER** omit `this.` on an instance member.
 3. **NEVER** write `public required`; it is `required public` under StyleCop 1.1.118.
-4. **NEVER** put a public setter, or any public getter, on an orchestrator, service or repository.
+4. **NEVER** put a public setter, or any public getter, on an orchestrator, service or repository; a page model or controller takes the one bound data type in 4.1 and nothing else public.
 5. **NEVER** branch on an entity's state and assign the entity inline in a caller; name the transition.
 6. **NEVER** hold a primitive as a behavior class's own state; use one options type.
 7. **NEVER** declare a non-readonly instance field on a behavior class.
