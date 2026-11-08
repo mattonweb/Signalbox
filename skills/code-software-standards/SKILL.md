@@ -2,7 +2,7 @@
 name: code-software-standards
 description: Language-neutral software standards for every repository that adopts this skill, in any language. Use whenever writing, modifying or reviewing code, before the language skill for that code: the two kinds of type (data and behavior) and the shape test that tells them apart, the SOLID principles as review checks, behavior-class rules (no public state, one named method per rule-bearing transition, own state at most two members and never a primitive, immutability, validate on entry, dependencies injected), data-type rules (no behavior, wrap primitives), method shape (one level of nesting, guard clauses, no reaching through a collaborator, first-class collections, whole-word names), error boundaries, the 500-line ceiling with per-repository exceptions, ambient state through injected abstractions, and the rule of thumb for language features. A language skill such as code-csharp-standards carries the half that depends on the language and its tools; this skill carries the half that does not.
 owner: Matt
-version: 1.0.0
+version: 1.0.1
 visibility: public
 ---
 
@@ -122,6 +122,18 @@ in a cycle. A module of rules that references a module of storage has inverted n
 
 A behavior class exposes no public getter or setter. Its dependencies are private and immutable; its own state is
 private.
+
+**Framework-bound classes.** A class the framework drives by writing to it and a template reads from, such as a page
+model, a controller or a view model, is a behavior class with exactly one opening for the framework's assignment:
+
+- the bound input is **one member whose type is a data type** (section 5), and that member is the only one the
+  framework writes;
+- everything the template reads is **readable from outside and writable only from inside** the class;
+- dependencies and handlers stay private, as in every other behavior class.
+
+The failure is a bound scalar on the behavior class itself: it is public state the class then reasons about, and
+every such class grows a different set of them. The input data type is built by the framework member by member, so
+it is settable; the class's own code reads it and never assigns to it. The language skill shows the shape.
 
 ### 4.2 A state transition with a rule lives in exactly one named method
 
