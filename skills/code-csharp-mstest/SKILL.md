@@ -2,7 +2,7 @@
 name: code-csharp-mstest
 description: Generate MSTest unit tests for C# classes following strict naming conventions, assertion patterns, and structural standards. Use this skill whenever asked to write, scaffold, or review C# unit tests.
 owner: Matt
-version: 1.0.0
+version: 1.0.1
 visibility: public
 ---
 
@@ -24,12 +24,13 @@ This skill applies only to MSTest unit tests for C# classes. It does not apply t
 
 ## Project and File Conventions
 
-Each .NET solution has two MSTest projects:
+A .NET solution may hold two kinds of MSTest project. Neither is required; when a solution has tests of a kind,
+it has exactly one project of that kind (the `dotnet-solution-architecture` skill rules on where projects live):
 
 - **`{SolutionName}.Test.Unit`** — Unit tests only. Runs on every branch push. Must be fast and self-contained.
 - **`{SolutionName}.Test.Integration`** — Integration tests only. Runs on pull requests. May take longer due to external dependencies.
 
-This skill generates code for the `{SolutionName}.Test.Unit` project. Unit tests must never contain connection strings to non-in-memory databases or depend on external services. Those concerns belong in the integration test project.
+This skill generates code for the `{SolutionName}.Test.Unit` project. Unit tests must never contain connection strings to non-in-memory databases or depend on external services. Those concerns belong in the integration test project, when the solution has one.
 
 Test file naming: `{ClassName}Tests.cs` (one test class per class under test).
 
