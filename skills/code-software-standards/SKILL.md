@@ -1,8 +1,8 @@
 ---
 name: code-software-standards
-description: Language-neutral software standards for every repository that adopts this skill, in any language. Use whenever writing, modifying or reviewing code, before the language skill for that code: the two kinds of type (data and behavior) and the shape test that tells them apart, the SOLID principles as review checks, behavior-class rules (no public state, one named method per rule-bearing transition, own state at most two members and never a primitive, immutability, validate on entry, dependencies injected), data-type rules (no behavior, wrap primitives), method shape (one level of nesting, guard clauses, no reaching through a collaborator, first-class collections, whole-word names), error boundaries, the 500-line ceiling with per-repository exceptions, ambient state through injected abstractions, and the rule of thumb for language features. A language skill such as code-csharp-standards carries the half that depends on the language and its tools; this skill carries the half that does not.
+description: Language-neutral software standards for every repository that adopts this skill, in any language. Use whenever writing, modifying or reviewing code, before the language skill for that code: the two kinds of type (data and behavior), the shape test that tells them apart (value semantics stay on data; anything else is behavior) and the three places a method can live (value semantics on the type, context semantics at the boundary that owns the context, business logic in a service), the SOLID principles as review checks, behavior-class rules (no public state, one named method per rule-bearing transition, own state at most two members and never a primitive, immutability, validate on entry, dependencies injected), data-type rules (value semantics only, wrap primitives), method shape (one level of nesting, guard clauses, no reaching through a collaborator, first-class collections, whole-word names), error boundaries, the 500-line ceiling with per-repository exceptions, ambient state through injected abstractions, and the rule of thumb for language features. A language skill such as code-csharp-standards carries the half that depends on the language and its tools; this skill carries the half that does not.
 owner: Matt
-version: 1.0.1
+version: 1.1.0
 visibility: public
 ---
 
@@ -34,17 +34,40 @@ repository holds. A language skill refines these rules for its language; it does
 
 Every type is one of two kinds, and **the test is shape, not folder or name**:
 
-> A type with no method bodies beyond equality, hashing and a string rendering is **data**.
+> A type whose every method body is **value semantics** is **data**.
 > A type with any other method body is a **behavior class**.
 
-**Data types** are entities, transfer objects, request and response shapes, options and settings, row types. They
-hold values and nothing else. Sections 5 and 6 apply to them.
+**Value semantics** are the members that say what a value *is* and nothing about what an application does with it:
+equality, hashing, natural ordering, a string rendering, parsing that rendering back, copying, and checking the
+type's own invariants on construction. A member is value semantics when a reviewer answers yes to all three:
+
+- it reads only the type's own members;
+- it uses no collaborator, clock, configuration or store;
+- it gives the same answer in every application and every store the type could reach.
+
+Parsing is fenced to the round trip: a parse accepts what the type's own rendering produces and nothing else. A
+method that builds the type from a file row, a wire message or a form is a loader's, not the type's.
+
+**Data types** are entities, transfer objects, request and response shapes, options and settings, row types, and the
+wrappers section 5 requires around primitives. They hold values and the semantics of those values, and nothing else.
+Sections 5 and 6 apply to them.
 
 **Behavior classes** are services, repositories, orchestrators, handlers, jobs, loaders: anything that does
 something. Sections 3, 4 and 7 apply to them.
 
-A type that is filed as data but has grown a method body has become a behavior class, and the rules for behavior
-classes apply from that moment. Usually the method belongs on a service.
+A type that is filed as data but has grown any other method body has become a behavior class, and the rules for
+behavior classes apply from that moment. Where the method belongs depends on **who decides its answer**:
+
+| Who decides the answer | The member is | Where it lives |
+|---|---|---|
+| The value itself: the same answer in every application and every store | value semantics | on the data type, which stays data |
+| A technology or setting outside the value: a store's collation, a wire format, a culture, a screen's sort order | context semantics | an **internal behavior class at the boundary that owns the context**: a converter, a comparer, an extension; not visible outside that layer |
+| A person in the business, who could change their mind | business logic | a service |
+
+Two questions separate the rows. *Would the answer change if the store, the wire format or the culture changed?*
+Then it is context semantics and belongs at that boundary, as section 5 already says of mapping to storage. *Would
+it change if someone in the business changed their mind?* Then it is business logic and belongs in a service. There
+are still two kinds of type; the table names three places a method can live, and two of them are behavior classes.
 
 ---
 
@@ -171,16 +194,18 @@ happy path never runs on an argument that was not checked.
 
 ## 5. Data types
 
-- A data type carries **no behavior**. If it needs a method with a body it has become a behavior
-  class and section 4 applies; usually the method belongs on a service.
+- A data type carries **no behavior beyond value semantics** (section 2). If it needs any other method body it has
+  become a behavior class and section 4 applies; the method belongs at the boundary that owns its context, or on a
+  service.
 - A data type is **immutable once built**: every member is set at construction and never reassigned. The language
   skill names the keyword.
 - Collections on a data type are **read-only to the holder**: an array or an immutable sequence, never a mutable
   list that a caller can grow.
 - **Wrap all primitives**. A domain concept is never a bare primitive on a data type
   or in a method signature: an identifier is an `Id` type, a code a `Code` type, a position a `Coordinate`. The
-  wrapper validates in its constructor and lets the compiler refuse one kind of identifier where another belongs.
-  Mapping to and from storage happens once, at the storage boundary, never at read sites.
+  wrapper validates in its constructor (value semantics, section 2) and lets the compiler refuse one kind of
+  identifier where another belongs. Mapping to and from storage happens once, at the storage boundary, never at
+  read sites, and so does any ordering or rendering the store dictates.
 
 ---
 
@@ -284,7 +309,7 @@ in.** A feature the language skill has not ruled on is not used in new code unti
 
 ## 12. Things to NEVER do
 
-1. **NEVER** put a method body on a data type; a type with behavior is a behavior class, filed and reviewed as one.
+1. **NEVER** put a method body on a data type beyond value semantics (section 2); a type with any other method body is a behavior class, filed and reviewed as one.
 2. **NEVER** expose public state on a behavior class.
 3. **NEVER** branch on an object's state and assign it inline in a caller; name the transition and own it once.
 4. **NEVER** hold a bare primitive as a behavior class's own state; configuration is one options type.
@@ -314,6 +339,10 @@ in.** A feature the language skill has not ruled on is not used in new code unti
 Answer every line yes before a change is ready. Each is observable on the diff.
 
 - [ ] Every new type is classified, data or behavior, by the shape test
+- [ ] Every method body on a data type is value semantics: own members only, no collaborator, same answer in every
+      store
+- [ ] A member a store, a wire format or a culture decides sits in an internal behavior class at that boundary, not
+      on the data type and not in a service
 - [ ] Each behavior class can be described in one sentence without *and*
 - [ ] The next case of any branch can be added in one place; no abstraction ahead of its second implementation
 - [ ] No subtype weakens its base type's contract; no inheritance from a type not designed for it; no caller

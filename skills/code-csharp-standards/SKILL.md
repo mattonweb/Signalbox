@@ -1,8 +1,8 @@
 ---
 name: code-csharp-standards
-description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behavior classes versus data types) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
+description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behavior classes versus data types, the C# members that count as value semantics) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
 owner: Matt
-version: 1.1.3
+version: 1.2.0
 visibility: public
 ---
 
@@ -89,11 +89,32 @@ internal sealed class CatalogPricePromoter : BaseClassWithLogging
 
 Every type is one of two kinds, and **the test is shape, not folder or name**:
 
-> A type with no method bodies beyond `ToString`, `Equals` and `GetHashCode` is **data**.
+> A type whose every method body is **value semantics** is **data**.
 > A type with any other method body is a **behavior class**.
 
+Value semantics are defined in `code-software-standards` section 2: members that read only the type's own members,
+use no collaborator, and give the same answer in every application and every store. In C# the members that count
+are:
+
+- `Equals`, `GetHashCode` and `IEquatable<T>`, including a record's compiler-generated equality;
+- `ToString`;
+- natural ordering as one unit: `IComparable<T>`, `CompareTo` and the four operators `<`, `<=`, `>` and `>=`
+  (CA1036 expects them together);
+- `IParsable<T>` (`Parse` and `TryParse`) and `IFormattable`, where the parse accepts the type's own rendering and
+  nothing else;
+- a record's `with`, which is the copy and needs no method body;
+- constructor validation of the type's own invariants, which section 5's primitive wrappers require.
+
+Never `ICloneable`: the .NET design guidelines discourage it because it does not say whether the copy is shallow or
+deep; a record's `with` is the copy. Attributes such as `[JsonPropertyName]` are not method bodies.
+
+Members a context decides live at that context's boundary as `internal` types, and none sits on the data type: a
+store's collation in an `IComparer<T>` beside the data layer's type handlers or value converters, a wire shape in a
+`JsonConverter<T>` in the layer that serializes, a culture's or a screen's sort beside the view that sorts. Members a
+person in the business decides live in a service.
+
 **Data types** are entities, DTOs and POCOs: records, Dapper-bound entities, request and response shapes, options
-and settings types, row classes. They live:
+and settings types, row classes, and the primitive wrappers of section 5. They live:
 
 - under `Entities/` when `public`;
 - under `DTOs/` when `internal` or `private`;
@@ -101,8 +122,9 @@ and settings types, row classes. They live:
   service that uses it is misfiled. (On 2026-10-04 three request and result types and 30 options types sat in behavior folders; moving them is
   by-product.)
 
-**Behavior classes** are orchestrators, services, repositories, jobs, loaders, composers, handlers: anything with a
-method body. Sections 4 and 6 apply to them and not to data.
+**Behavior classes** are orchestrators, services, repositories, jobs, loaders, composers, handlers, and the internal
+comparers and converters at a boundary: anything with a method body that is not value semantics. Sections 4 and 6
+apply to them and not to data.
 
 ---
 
@@ -232,8 +254,9 @@ mapper, never in a repository method body. (When ruled, 86 files in two repos ca
   members and `init` setters (or `set` only where the mapper, Dapper for instance, requires it).
 - Collections on DTOs are **arrays**, not `IList<T>`: they signal immutability, match JSON array semantics and
   perform better.
-- A data type carries **no behavior**. If it needs a method with a body it has become a behavior class and
-  section 4 applies; usually the method belongs on a service.
+- A data type carries **no behavior beyond value semantics** (section 3). If it needs any other method body it has
+  become a behavior class and section 4 applies; the method belongs at the boundary that owns its context, or on a
+  service.
 - **JSON serialization: `System.Text.Json` is the house library**, with `[JsonPropertyName]` on DTO members (Matt,
   2026-10-04: *"We are purposely moving to System.Text.Json"*). New code never references Newtonsoft; the 21 files that still do, all in one repo, are migration debt.
 - **Wrap all primitives** (Matt, 2026-10-04: *"our house rules should be to 'Wrap all primitives'"*). A domain concept
@@ -506,7 +529,7 @@ to a build error in one repo.
 12. **NEVER** block on a task with `.Result` or `.Wait()`.
 13. **NEVER** place a `CancellationToken` anywhere but last.
 14. **NEVER** file a data type under `Services/`, `Repositories/` or `Orchestrators/`.
-15. **NEVER** put a method body on an entity, DTO or POCO.
+15. **NEVER** put a method body on an entity, DTO or POCO beyond the value semantics section 3 lists; never `ICloneable`.
 16. **NEVER** abbreviate an identifier.
 17. **NEVER** exceed 500 lines in a production file without an entry in that repo's `CLAUDE.md`.
 18. **NEVER** write `TODO`, `FIXME`, `XXX` or `HACK` in a comment.
