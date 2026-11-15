@@ -78,7 +78,8 @@ Everything not named is allowed: `status`, `diff`, `log`, `show`, `fetch`, `pull
 
 **How `branch` learns the branch.** Only when a rule needs it (a commit, or a push whose destination is the
 checked-out branch) the hook runs `git symbolic-ref --short HEAD` with a 10-second timeout, in the directory
-named by `git -C <path>` when the command carries one (joined onto the payload's cwd, as git does), else in
+named by `git -C <path>` when the command carries one (joined onto the payload's cwd, as git does; on Windows a
+Git Bash drive path such as `/c/Source/Repo` is read as `C:/Source/Repo` first, since 1.1.2), else in
 the hook payload's `cwd`. Any failure (not a repository, detached HEAD, git missing, timeout) reads as
 unknown, and unknown denies with a reason that says the branch could not be read. `git status`, `git push
 origin feature/x` and every other profile never start that process. `--explain` takes `--cwd` for the same
@@ -181,6 +182,9 @@ python -c "import json;print(json.dumps({'tool_name':'Bash','tool_input':{'comma
   supported way to point at another repository. In PowerShell, quote a `-C` path that carries backslashes
   (or use forward slashes): the tokeniser follows POSIX quoting, so an unquoted `C:\Source\Repo` loses its
   backslashes, the branch cannot be read there, and the command is denied (closed, not open).
+- On Windows a `-C` path that starts with a single-letter segment (`/c/Source/Repo`) is read as a drive path, the
+  way Git Bash reads it, whichever tool ran the command. PowerShell itself would mean a folder named `c` at the
+  root of the current drive; a repository kept at such a path has its branch read in the wrong place.
 - Shell redirections (`2>&1`, `> file`, `2>/dev/null`) are stripped before a command is read, since 1.1.1; a pipe splits the
   line and the part after it is read on its own. A charter may still ask agents to run git plain; the hook no longer needs it.
 - False positives: a heredoc or multi-line string whose own line starts with `git push` reads as a

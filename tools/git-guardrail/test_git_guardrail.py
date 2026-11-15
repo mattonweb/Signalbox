@@ -272,6 +272,7 @@ BRANCH_ROWS = [
     ("feature/x", "git push origin HEAD:main 2>&1 | tail -3", "push to main" + OFF_TOPIC),
     ("feature/x", "git add -A && git commit -m x && git push -u origin HEAD", ALLOW),
     ("feature/x", "git -C C:\\Source\\Repo commit -m x", ALLOW),
+    ("feature/x", "git -C /c/Source/Repo commit -m x", ALLOW),  # a Git Bash drive path, since 1.1.2
     ("feature/x", "bash -c \"git commit -m x && git push\"", ALLOW),
     ("feature/x", "git push origin main", "push to main" + OFF_TOPIC),
     ("feature/x", "git push origin HEAD:main", "push to main" + OFF_TOPIC),
@@ -283,6 +284,7 @@ BRANCH_ROWS = [
     ("hotfix/urgent", "git push", ALLOW),
     ("hotfix/urgent", "git push -u origin HEAD", ALLOW),
     ("main", "git commit -m x", "commit on main" + OFF_TOPIC),
+    ("main", "git -C /c/Source/Repo commit -m x", "commit on main" + OFF_TOPIC),
     ("main", "git commit --amend --no-edit", "commit on main" + OFF_TOPIC),
     ("main", "git cherry-pick abc123", "cherry-pick on main" + OFF_TOPIC),
     ("main", "git revert HEAD", "revert on main" + OFF_TOPIC),
@@ -397,6 +399,27 @@ class BranchRows(unittest.TestCase):
         expected = ["C:\\Source\\Repo", "C:\\Source\\Other", os.path.join("C:\\Source\\Repo", "sub"),
                     os.path.join("C:\\Source\\Repo", "sub"), None]
         self.assertEqual(expected, self.reads)
+
+    def test_git_bash_drive_path_becomes_a_windows_path(self):
+        self.assertEqual("C:/Source/Repo", gg.native_path("/c/Source/Repo", windows=True))
+        self.assertEqual("D:/", gg.native_path("/d", windows=True))
+        self.assertEqual("/tmp/x", gg.native_path("/tmp/x", windows=True))  # not a drive: left as it is
+        self.assertEqual("C:\\Source\\Repo", gg.native_path("C:\\Source\\Repo", windows=True))
+        self.assertEqual("sub", gg.native_path("sub", windows=True))
+        self.assertEqual("/c/Source/Repo", gg.native_path("/c/Source/Repo", windows=False))
+
+    def test_git_bash_drive_path_names_the_target_directory(self):
+        self.pin("feature/x")
+        gg.decision("git -C /c/Source/Other commit -m x", "branch", cwd="C:\\Source\\Repo")
+        self.assertEqual([os.path.join("C:\\Source\\Repo", gg.native_path("/c/Source/Other"))], self.reads)
+        if os.name == "nt":
+            self.assertEqual(["C:/Source/Other"], self.reads)  # not C:/c/Source/Other, the 1.1.1 reading
+
+    def test_unread_branch_advice_allows_one_plain_reissue(self):
+        self.pin(None)
+        reason = gg.decision("git commit -m x", "branch")
+        self.assertIn("re-issue the command once in its plain form", reason)
+        self.assertNotIn("rather than retrying", reason)
 
     def test_branch_is_read_only_when_a_rule_needs_it(self):
         self.pin("main")
@@ -541,6 +564,18 @@ class RealRepository(unittest.TestCase):
             self.assertEqual("main", gg.read_branch(folder))
             self.assertIn("rule: commit on main, not feature/* or hotfix/*)", self.hook("git commit -m x", folder))
             self.assertIn("rule: push on main, not feature/* or hotfix/*)", self.hook("git push", folder))
+
+    @unittest.skipUnless(os.name == "nt", "a Git Bash drive path exists only on Windows")
+    def test_git_bash_drive_path_reaches_the_repository(self):
+        cases = (("feature/x", ""), ("main", "rule: commit on main, not feature/* or hotfix/*)"))
+        for branch, expected in cases:
+            with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as folder:
+                self.repo_on(folder, branch)
+                drive, tail = os.path.splitdrive(os.path.abspath(folder))
+                bash_path = "/" + drive[0].lower() + tail.replace("\\", "/")
+                answer = self.hook("git -C \"%s\" commit -m x" % bash_path, HERE)
+                self.assertIn(expected, answer)
+                self.assertEqual(expected == "", answer == "", answer)
 
     def test_not_a_repository_denies_commit_saying_so(self):
         with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as folder:

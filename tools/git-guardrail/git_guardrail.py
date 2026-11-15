@@ -42,7 +42,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-VERSION = "1.1.1"
+VERSION = "1.1.2"
 HOOK_EVENT = "PreToolUse"
 SEPARATORS = {"&&", "||", ";", "|", "&", "|&", ";;"}
 INTERPRETERS = {"bash", "sh", "zsh", "dash", "ksh", "pwsh", "powershell", "cmd", "eval", "xargs"}
@@ -55,6 +55,7 @@ PUSH_WHOLESALE = {"--all", "--branches", "--tags", "--follow-tags", "--prune"}
 TOPIC_PREFIXES = ("feature/", "hotfix/")
 BRANCH_TIMEOUT_SECONDS = 10
 MAX_DEPTH = 3
+GIT_BASH_DRIVE_PATH = re.compile(r"^/([A-Za-z])(/.*)?$")
 
 
 # ----------------------------------------------------------------------------------------------
@@ -235,8 +236,9 @@ ADVICE = {
     "branch": (
         "This repository locks main: commit and push only on a feature/<topic> or hotfix/<topic> branch, and "
         "bring the work to main by pull request. Cut one with git checkout -b feature/<topic>, commit there and "
-        "push that branch; merge, rebase and reset are a human's call. If the branch could not be read, run "
-        "git status, say what you see in your reply, and hand back rather than retrying."
+        "push that branch; merge, rebase and reset are a human's call. If the branch could not be read, "
+        "re-issue the command once in its plain form, from inside the repository and without -C; if that is "
+        "refused too, run git status, say what you see in your reply, and hand back."
     ),
     "author": (
         "This command rewrites history or discards work, which is a human's call, not the agent's. Stop, say "
@@ -339,10 +341,26 @@ def strip_wrappers(segment):
     return segment[index:]
 
 
+def native_path(path, windows=None):
+    """Turn a Git Bash drive path (/c/Source/Repo) into its Windows form (C:/Source/Repo).
+
+    Git Bash rewrites such a path before git sees it; Python does not, and os.path.join would fold
+    "/c/Source/Repo" onto the cwd's drive as "C:/c/Source/Repo", where no repository is. Only on
+    Windows, and only when the first segment is a single letter: "/tmp/x" is left as it is.
+    """
+    if windows is None:
+        windows = os.name == "nt"
+    match = GIT_BASH_DRIVE_PATH.match(path) if windows else None
+    if not match:
+        return path
+    return match.group(1).upper() + ":" + (match.group(2) or "/")
+
+
 def split_git(segment, cwd=None):
     """Return (subcommand, args, repo_dir) when the segment is a git invocation, else None.
 
-    repo_dir starts at cwd and each `-C <path>` is joined onto it, the way git itself resolves them.
+    repo_dir starts at cwd and each `-C <path>` is joined onto it, the way git itself resolves them;
+    a Git Bash drive path is read as its Windows form first (see native_path).
     """
     if not segment or program_name(segment[0]) != "git":
         return None
@@ -350,7 +368,7 @@ def split_git(segment, cwd=None):
     while index < len(segment):
         token = segment[index]
         if token == "-C" and index + 1 < len(segment):
-            repo_dir = os.path.join(repo_dir or "", segment[index + 1])
+            repo_dir = os.path.join(repo_dir or "", native_path(segment[index + 1]))
             index += 2
             continue
         if token in GIT_GLOBAL_WITH_VALUE:
