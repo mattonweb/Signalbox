@@ -2,7 +2,7 @@
 name: code-csharp-mstest
 description: Generate MSTest unit tests for C# classes following strict naming conventions, assertion patterns, and structural standards. Use this skill whenever asked to write, scaffold, or review C# unit tests.
 owner: Matt
-version: 1.0.1
+version: 1.0.2
 visibility: public
 ---
 
@@ -178,7 +178,7 @@ public sealed class MyClassTests
         // Arrange (Given)
 
         // Act (When)
-        var instance = new MyClass();
+        MyClass instance = new MyClass();
 
         // Assert (Then)
         Assert.IsNotNull(
@@ -207,10 +207,10 @@ Every test method uses the AAA pattern with `Given / When / Then` comment labels
 public void Method_Scenario_ExpectedResult()
 {
     // Arrange (Given)
-    var input = "test";
+    string input = "test";
 
     // Act (When)
-    var result = instance.SomeMethod(input);
+    string result = instance.SomeMethod(input);
 
     // Assert (Then)
     Assert.AreEqual(
@@ -321,7 +321,7 @@ Assert.IsTrue(
 Or restructure to avoid it:
 
 ```csharp
-var match = collection.FirstOrDefault(x => x.Id == expectedId);
+MyRecord? match = collection.FirstOrDefault(x => x.Id == expectedId);
 Assert.IsNotNull(
     match,
     "Collection should contain an item with the expected ID.");
@@ -442,6 +442,7 @@ When verifying exception details, compare only specific properties like `ParamNa
 - All async test methods must return `Task`, never `void`
 - Use `async Task` in the method signature
 - Always pass and respect `CancellationToken` when the method under test accepts one
+- Do **not** add `.ConfigureAwait(false)` to an `await` in a test method. `code-csharp-standards` section 6.7 requires it in production code and exempts test projects: a test method has no synchronization context worth escaping
 - The `Task` return is a framework requirement, not a meaningful return value. **Do NOT add `<returns>` documentation** to async test methods. If StyleCop's `SA1615` (Element return value should be documented) fires under `<GenerateDocumentationFile>true</GenerateDocumentationFile>`, suppress it in the test project's `.csproj` only — the production projects still enforce it.
 
 ```xml
@@ -458,10 +459,10 @@ When verifying exception details, compare only specific properties like `ParamNa
 public async Task ProcessAsync_ValidInput_CompletesSuccessfully()
 {
     // Arrange (Given)
-    var input = "test";
+    string input = "test";
 
     // Act (When)
-    var result = await instance.ProcessAsync(input, CancellationToken.None);
+    string result = await instance.ProcessAsync(input, CancellationToken.None);
 
     // Assert (Then)
     Assert.IsNotNull(
@@ -478,14 +479,14 @@ When creating new instances of record types in tests, use **object initializer s
 
 ```csharp
 // ✅ Correct — object initializer
-var modified = new MyRecord
+MyRecord modified = new MyRecord
 {
     Name = original.Name,
     Value = newValue,
 };
 
 // ❌ Wrong — do not use 'with'
-var modified = original with { Value = newValue };
+MyRecord modified = original with { Value = newValue };
 ```
 
 ---
@@ -534,14 +535,14 @@ Switch to `MockBehavior.Loose` only when the class under test makes many inciden
 
 ```csharp
 // ✅ Correct — strict mock, all expected calls must be set up
-var mockService = new Mock<ISomeService>(MockBehavior.Strict);
+Mock<ISomeService> mockService = new Mock<ISomeService>(MockBehavior.Strict);
 mockService
     .Setup(s => s.GetDataAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
     .ReturnsAsync("result");
 
 // ✅ Acceptable — loose mock when the class under test calls many
 // methods on the dependency and only some are relevant to this test
-var mockLogger = new Mock<ILogger<MyClass>>(MockBehavior.Loose);
+Mock<ILogger<MyClass>> mockLogger = new Mock<ILogger<MyClass>>(MockBehavior.Loose);
 ```
 
 ```csharp
@@ -553,11 +554,11 @@ var mockLogger = new Mock<ILogger<MyClass>>(MockBehavior.Loose);
 public async Task ProcessAsync_ValidInput_CallsDependency()
 {
     // Arrange (Given)
-    var mockService = new Mock<ISomeService>(MockBehavior.Strict);
+    Mock<ISomeService> mockService = new Mock<ISomeService>(MockBehavior.Strict);
     mockService
         .Setup(s => s.GetDataAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
         .ReturnsAsync("result");
-    var instance = new MyClass(mockService.Object);
+    MyClass instance = new MyClass(mockService.Object);
 
     // Act (When)
     await instance.ProcessAsync("input", CancellationToken.None);
@@ -608,7 +609,7 @@ public sealed class MyClassTests
         string input = "test";
 
         // Act (When)
-        var result = this._instance!.Method(input);
+        string result = this._instance!.Method(input);
 
         // Assert (Then)
         Assert.AreEqual(
@@ -653,6 +654,7 @@ These are hard rules. Violating any of them produces code that will not compile 
 16. **NEVER** use `null!` to initialize test class fields — declare them as nullable and initialize in `[TestInitialize]`
 17. **NEVER** use inline lambdas or string interpolation inside Assert messages — use plain string literals only
 18. **NEVER** use `SELECT *` or connect to external databases in unit tests
+19. **NEVER** use `var` in test code — declare the type, as `code-csharp-standards` section 2 requires; that rule binds test projects too
 
 ---
 
@@ -673,6 +675,7 @@ Before presenting test code, verify every item:
 - [ ] Every test method follows Roy Osherove naming
 - [ ] Every test method has all three AAA comments (`// Arrange (Given)`, `// Act (When)`, `// Assert (Then)`)
 - [ ] Every Assert has a descriptive message using a plain string literal (no lambdas or interpolation)
+- [ ] No `var`: every local declares its type
 - [ ] Specialized asserts used where applicable (no MSTEST0037)
 - [ ] `Assert.HasCount(expected, collection, msg)` for counts (count first)
 - [ ] Exception tests use try/catch with bool flag (no Assert.ThrowsAsync / ThrowsExactlyAsync / etc.)
