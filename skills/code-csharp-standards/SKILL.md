@@ -2,7 +2,7 @@
 name: code-csharp-standards
 description: House C# standards for every repository that adopts this skill. Use whenever writing, modifying or reviewing C# code in these repos: file layout, the type taxonomy (behavior classes versus data types, the C# members that count as value semantics) and where each lives, immutability and dependency rules, method shape (one indentation level, guard clauses, two dots per chain), exception boundaries, async, naming, the 500-line ceiling, and the language features allowed. Pair with code-csharp-mstest for tests and code-roadbed-csharp for code that consumes the Roadbed libraries. The enforceable half of these rules lives in the house .editorconfig and the analyzers; this skill states the half a reviewer has to check.
 owner: Matt
-version: 1.2.0
+version: 1.2.1
 visibility: public
 ---
 
@@ -70,7 +70,9 @@ internal sealed class CatalogPricePromoter : BaseClassWithLogging
 - **`this.` on every instance member access**: fields, properties, methods, inside getters and setters. StyleCop
   SA1101 enforces it. Not on statics, locals, parameters, or `this()` and `base()` calls.
 - **`var` is never used.** Declare the type. The `.editorconfig` says so on all three `var` settings and is correct.
-  The 13,600 existing declarations are refactor by-product, not precedent.
+  The 13,600 existing declarations are refactor by-product, not precedent. **The rule binds test projects too**
+  (Matt, 2026-11-15): new and touched test code declares the type; existing `var` lines in tests are not an order to
+  rewrite them.
 - **Classes are `sealed` unless designed for inheritance.** A base class says so in its name or its summary.
 - **Naming.** Private fields `_camelCase`; parameters and locals `camelCase`; types, members and constants
   `PascalCase`; interfaces start with `I`. (Not `ALL_CAPS` for constants: StyleCop
@@ -376,7 +378,9 @@ Acronyms that are words in the domain (`Id`, `Url`, `Csv`, `Fips`, `Ats`, `Mcp`)
 
 - `CancellationToken cancellationToken = default` is **always the last parameter**, after required and optional
   parameters (matches the base class library).
-- Every `await` carries `.ConfigureAwait(false)` (CA2007).
+- Every `await` carries `.ConfigureAwait(false)` (CA2007). **Test projects are exempt** (Matt, 2026-11-15): a test
+  method has no synchronization context worth escaping. Do not add it in a test, and do not strip it from a test
+  that already has it.
 - **Never `.Result` or `.Wait()`** on a task in production code (8 files on 2026-10-04, jobs and scheduling;
   by-product).
 - **Never `async void`** (0 today).
@@ -515,7 +519,7 @@ to a build error in one repo.
 
 ## 14. Things to NEVER do
 
-1. **NEVER** use `var`.
+1. **NEVER** use `var`, in production or test code.
 2. **NEVER** omit `this.` on an instance member.
 3. **NEVER** write `public required`; it is `required public` under StyleCop 1.1.118.
 4. **NEVER** put a public setter, or any public getter, on an orchestrator, service or repository; a page model or controller takes the one bound data type in 4.1 and nothing else public.
@@ -566,7 +570,8 @@ Answer every line yes before a change is ready. Each is observable on the diff.
 - [ ] Fully qualified type names replaced by `using` directives
 - [ ] No abbreviations in identifiers
 - [ ] No local functions; helpers are private methods with XML summaries
-- [ ] `CancellationToken` is last; every `await` has `ConfigureAwait(false)`; no `.Result`, `.Wait()`, `async void`
+- [ ] `CancellationToken` is last; every `await` has `ConfigureAwait(false)` (test projects exempt); no `.Result`,
+      `.Wait()`, `async void`
 - [ ] `catch (Exception)` only at a named boundary, with the CA1031 pragma and a one-line reason
 - [ ] Rethrows are `throw;`
 - [ ] Production file is 500 lines or fewer, or listed in the repo's `CLAUDE.md` with a reason
